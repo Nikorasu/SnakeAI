@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# I didn't quite know enough about ML when I made this.
 # Stripped-down version of my Snake game, meant for use with a neural network! (more numpy)
 # This version is not meant to be played by a human, I hope to try to train an AI to play it.
 # Copyright (C) 2022  Nik Stromberg - nikorasu85@gmail.com
