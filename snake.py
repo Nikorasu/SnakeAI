@@ -5,7 +5,7 @@ from numpy import unravel_index as unravel
 # This is a simplified version of the classic Snake game,
 # reworked specifically for implementing into machine learning.
 # I've added a reward system to the do() function. 1 point if action moves towards food, 0 when moving away.
-# When food is eaten, the reward will show 10. On game over reward shows -1, final score is snake.max().item()-3
+# When food is eaten, the reward will show 10. Game over reward shows -1, final score is snake.max().item()-3
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 def do(snake: t.Tensor, action: int):
@@ -36,7 +36,7 @@ def getdists(snake):
     food = divmod(t.argmin(snake).item(), snake.shape[1])
     return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item() #t.cdist(). .unsqueeze(0)
 
-def print_game_state(snake):
+def print_state(snake):
     for row in snake:
         row_str = ''.join([f"{value:2}" for value in row.tolist()])
         print(row_str)
@@ -47,14 +47,14 @@ snake = t.zeros((board_size, board_size), dtype=t.int)
 snake[0, :3] = T([1, 2,-1])
 score = do(snake, 1)
 print()
-print_game_state(snake)
+print_state(snake)
 print()
 
 while score != -1:
     action = input("Enter action (0: left, 1: forward, 2: right): ")
     print()
     score = do(snake, int(action) if action != '' else 1)
-    print_game_state(snake)
+    print_state(snake)
     print(score)
 
 print('Score:', snake.max().item()-3)
