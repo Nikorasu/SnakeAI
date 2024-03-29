@@ -1,11 +1,13 @@
+#!/usr/bin/env python3
 import torch as t
 from torch import tensor as T
 from numpy import unravel_index as unravel
 
-# This is a simplified version of the classic Snake game,
-# reworked specifically for implementing into machine learning.
-# I've added a reward system to the do() function. 1 point if action moves towards food, 0 when moving away.
-# When food is eaten, the reward will show 10. Game over reward shows -1, final score is snake.max().item()-3
+# This is a simplified version of the classic Snake game, reworked specifically for implementing into machine learning.
+# I've added a reward system to the do() function's return. 1 point if action resulted in moving towards food, 0 when moving away.
+# When food is eaten, that will reward 10. Game over indicated by a reward of -1, final score is snake.max().item()-3
+# The neural network inputs will correspond directly to the snake tensor, which I think is 5 by 5, so 25 input neurons?
+# The neural network outputs will correspond to the available actions (0, 1, 2) for left, forward, right.
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 def do(snake: t.Tensor, action: int):
@@ -41,20 +43,22 @@ def print_state(snake):
         row_str = ''.join([f"{value:2}" for value in row.tolist()])
         print(row_str)
 
-board_size = 5
-snake = t.zeros((board_size, board_size), dtype=t.int)
-#center = board_size // 2
-snake[0, :3] = T([1, 2,-1])
-score = do(snake, 1)
-print()
-print_state(snake)
-print()
-
-while score != -1:
-    action = input("Enter action (0: left, 1: forward, 2: right): ")
+# The neural network agent will have to initialize this stuff too, and handle the loop.
+if __name__ == '__main__':
+    board_size = 5
+    snake = t.zeros((board_size, board_size), dtype=t.int)
+    #center = board_size // 2
+    snake[0, :3] = T([1, 2,-1])
+    score = do(snake, 1)
     print()
-    score = do(snake, int(action) if action != '' else 1)
     print_state(snake)
-    print(score)
+    print()
 
-print('Score:', snake.max().item()-3)
+    while score != -1:
+        action = input("Enter action (0: left, 1: forward, 2: right): ")
+        print()
+        score = do(snake, int(action) if action != '' else 1)
+        print_state(snake)
+        print(score)
+
+    print('Score:', snake.max().item()-3)
