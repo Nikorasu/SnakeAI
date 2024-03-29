@@ -49,7 +49,7 @@ if __name__ == '__main__':
     snake = t.zeros((board_size, board_size), dtype=t.int)
     #center = board_size // 2
     snake[0, :3] = T([1, 2,-1])
-    score = do(snake, 1)
+    score = do(snake, 1)  # needed so snake becomes 3 long and first random food spawns
     print()
     print_state(snake)
     print()
