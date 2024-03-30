@@ -59,7 +59,7 @@ class ReplayBuffer:
 
 # Define the DQN agent
 class DQNAgent:
-    def __init__(self, input_size, output_size, buffer_size=10000, batch_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995):
+    def __init__(self, input_size, output_size, buffer_size=10000, batch_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, target_update_frequency=1000):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.dqn = DQN(input_size, output_size).to(self.device)
         self.target_dqn = DQN(input_size, output_size).to(self.device)
@@ -71,6 +71,8 @@ class DQNAgent:
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
+        self.target_update_frequency = target_update_frequency
+        self.update_counter = 0
 
     def get_action(self, state):
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
@@ -103,29 +105,15 @@ class DQNAgent:
         self.optimizer.step()
 
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
-'''
-    def train(self, env, episodes, max_steps):
-        for episode in range(episodes):
-            state = env.reset()
-            episode_reward = 0
-            for step in range(max_steps):
-                action = self.get_action(state)
-                next_state, reward, done, _ = env.step(action)
-                self.buffer.push(state, action, reward, next_state, done)
-                state = next_state
-                episode_reward += reward
-                if done:
-                    break
-                self.update()
-            if episode % 100 == 0:
-                print(f"Episode: {episode}, Reward: {episode_reward}")
-            if self.epsilon > self.epsilon_min:
-                self.target_dqn.load_state_dict(self.dqn.state_dict())'''
+        
+        self.update_counter += 1
+        if self.update_counter % self.target_update_frequency == 0:
+            self.target_dqn.load_state_dict(self.dqn.state_dict())
 
 # Initialize the agent and environment
 input_size = 64  # 8x8 board size
 output_size = 3  # 3 actions (left, forward, right)
-agent = DQNAgent(input_size, output_size, batch_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995)
+agent = DQNAgent(input_size, output_size, batch_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.999, target_update_frequency=1000)
 
 # Training loop
 episodes = 10000
@@ -151,28 +139,25 @@ for episode in range(episodes):
         score = do(snake, action)
         next_state = snake.flatten().numpy()
         reward = score if score != -1 else -10 #snake.max().item()-4
-        done = True if score == -1 else False
-        reward = reward if reward != 0 else -1
+        #reward = score if score != 0 else -10
         # if reward is 10, add snake length to score
         if reward == 10:
-            reward += snake.max().item() - 4
+            #reward += (snake.max().item() - 4) *2
             last_food = 0  # Reset the step count if food was eaten
         else:
             last_food += 1  # Increment the step count
-        
-        # Print the updated state and score
-        print_state(snake)
-        print(f" H:{snake.max().item():>2}  R:{reward:^3}  TO:{64-last_food:>2}  Ep:{episode}  eR:{episode_reward}")
-        sleep(.02)
+        if last_food > 32 or score == -1:
+            if last_food > 32:
+                reward = -20
+            done = True  # End the episode if the snake has not eaten food for too long
 
         agent.buffer.push(state, action, reward, next_state, done)
         state = next_state
         episode_reward += reward
-
-        if last_food > 64:
-            done = True  # End the episode if the snake has not eaten food for too long
+        
+        # Print the updated state and score
+        print_state(snake)
+        print(f" H:{snake.max().item():>2}  R:{reward:^3}  TO:{32-last_food:>2}  Ep:{episode}  eR:{episode_reward}")
+        sleep(.02)
 
         agent.update()
-
-    if episode % 100 == 0:
-        agent.target_dqn.load_state_dict(agent.dqn.state_dict())

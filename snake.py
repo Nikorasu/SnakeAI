@@ -4,9 +4,9 @@ from torch import tensor as T
 from numpy import unravel_index as unravel
 
 # This is a simplified version of the classic Snake game, reworked specifically for implementing into machine learning.
-# I've added a reward system to the do() function's return. 1 point if action resulted in moving towards food, 0 when moving away.
+# I've added a reward system to the do() function's return. Still adjusting how things are rewarded tho.
 # When food is eaten, that will reward 10. Game over indicated by a reward of -1, final score is snake.max().item()-3
-# The neural network inputs will correspond directly to the snake tensor, which I think is 5 by 5, so 25 input neurons?
+# The neural network inputs will correspond directly to the snake tensor, which I think is 8 by 8, so 64 input neurons?
 # The neural network outputs will correspond to the available actions (0, 1, 2) for left, forward, right.
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
@@ -31,7 +31,7 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return int(distaf < distb4) if segs == prevsegs else 10
+    return 10 if segs > prevsegs else int(distaf < distb4)#0  #(1 if distaf < distb4 else -1) #int(distaf < distb4)
 
 def getdists(snake):
     head = divmod(t.argmax(snake).item(), snake.shape[1]) #(snake == t.max(snake)).nonzero(as_tuple=True)
@@ -45,7 +45,7 @@ def print_state(snake):
 
 # The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
-    board_size = 5
+    board_size = 8
     snake = t.zeros((board_size, board_size), dtype=t.int)
     #center = board_size // 2
     snake[0, :3] = T([1, 2,-1])
