@@ -59,12 +59,12 @@ class ReplayBuffer:
 
 # Define the DQN agent
 class DQNAgent:
-    def __init__(self, input_size, output_size, buffer_size=10000, batch_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, target_update_frequency=1000):
+    def __init__(self, input_size, output_size, buffer_size=10000, batch_size=64, lr = 0.001, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, target_update_frequency=1000):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.dqn = DQN(input_size, output_size).to(self.device)
         self.target_dqn = DQN(input_size, output_size).to(self.device)
         self.target_dqn.load_state_dict(self.dqn.state_dict())
-        self.optimizer = optim.Adam(self.dqn.parameters())
+        self.optimizer = optim.Adam(self.dqn.parameters(),lr=lr)
         self.buffer = ReplayBuffer(buffer_size)
         self.batch_size = batch_size
         self.gamma = gamma
@@ -113,7 +113,7 @@ class DQNAgent:
 # Initialize the agent and environment
 input_size = 64  # 8x8 board size
 output_size = 3  # 3 actions (left, forward, right)
-agent = DQNAgent(input_size, output_size, batch_size=64, gamma=0.99, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.999, target_update_frequency=1000)
+agent = DQNAgent(input_size, output_size, batch_size=128, lr=0.0001, gamma=0.9, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995, target_update_frequency=1000)
 
 # Training loop
 episodes = 10000
@@ -138,7 +138,7 @@ for episode in range(episodes):
         action = agent.get_action(state)
         score = do(snake, action)
         next_state = snake.flatten().numpy()
-        reward = score if score != -1 else -10 #snake.max().item()-4
+        reward = score #if score != -1 else -10 #snake.max().item()-4
         #reward = score if score != 0 else -10
         # if reward is 10, add snake length to score
         if reward == 10:
@@ -146,9 +146,9 @@ for episode in range(episodes):
             last_food = 0  # Reset the step count if food was eaten
         else:
             last_food += 1  # Increment the step count
-        if last_food > 32 or score == -1:
+        if last_food > 32 or score == -10:
             if last_food > 32:
-                reward = -20
+                reward = -50
             done = True  # End the episode if the snake has not eaten food for too long
 
         agent.buffer.push(state, action, reward, next_state, done)

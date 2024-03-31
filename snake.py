@@ -19,7 +19,7 @@ def do(snake: t.Tensor, action: int):
     pos_next = (pos_cur + (pos_cur - pos_prev) @ rotation) % T(snake.shape)
     
     if (snake[tuple(pos_next)] > 0).any():
-        return -1 #snake.max().item() #snake[tuple(pos_cur)].item()
+        return -10 #snake.max().item() #snake[tuple(pos_cur)].item()
     
     if snake[tuple(pos_next)] == -1:
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
@@ -31,7 +31,7 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return 10 if segs > prevsegs else int(distaf < distb4)#0  #(1 if distaf < distb4 else -1) #int(distaf < distb4)
+    return 10 if segs > prevsegs else (int(10-distaf) if distaf < distb4 else min(int(-(10-distaf)),-1)) #int(distaf < distb4) #int(-distaf)
 
 def getdists(snake):
     head = divmod(t.argmax(snake).item(), snake.shape[1]) #(snake == t.max(snake)).nonzero(as_tuple=True)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     print_state(snake)
     print()
 
-    while score != -1:
+    while score != -10:
         action = input("Enter action (0: left, 1: forward, 2: right): ")
         print()
         score = do(snake, int(action) if action != '' else 1)
