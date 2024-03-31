@@ -4,8 +4,8 @@ from torch import tensor as T
 from numpy import unravel_index as unravel
 
 # This is a simplified version of the classic Snake game, reworked specifically for implementing into machine learning.
-# I've added a reward system to the do() function's return. Still adjusting how things are rewarded tho.
-# When food is eaten, that will reward 10. Game over indicated by a reward of -1, final score is snake.max().item()-3
+# I've added a reward system to the do() function's return. Reward increases up to 9 the closer snake gets to food, moving away returns the negative.
+# When food is eaten, that will reward 10. Game over indicated by a reward of -10, score is snake.max().item()-4
 # The neural network inputs will correspond directly to the snake tensor, which I think is 8 by 8, so 64 input neurons?
 # The neural network outputs will correspond to the available actions (0, 1, 2) for left, forward, right.
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
@@ -48,7 +48,8 @@ if __name__ == '__main__':
     board_size = 8
     snake = t.zeros((board_size, board_size), dtype=t.int)
     #center = board_size // 2
-    snake[0, :3] = T([1, 2,-1])
+    #snake[0, :3] = T([1, 2,-1])
+    snake[0, :4] = T([1, 2, 3, -1])
     score = do(snake, 1)  # needed so snake becomes 3 long and first random food spawns
     print()
     print_state(snake)
@@ -61,4 +62,4 @@ if __name__ == '__main__':
         print_state(snake)
         print(score)
 
-    print('Score:', snake.max().item()-3)
+    print('Score:', snake.max().item()-4)
