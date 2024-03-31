@@ -8,6 +8,8 @@ from time import sleep
 # itself without a neural network, just a dumb bot picking best options. Scores around 35-40!
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
+game_size = 10
+
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
     distb4 = getdists(snake)
@@ -41,14 +43,12 @@ def print_state(snake):
         row_str = ''.join([f"{value:2}" for value in row.tolist()])
         print(row_str)
 
-def single_bot_game(highscore=0):
-    board_size = 8
-    snake = t.zeros((board_size, board_size), dtype=t.int)
+def single_bot_game(size=10, highscore=0):
+    snake = t.zeros((size, size), dtype=t.int)
     snake[0, :3] = T([1, 2,-1])
     reward = do(snake, 1)  # snake needs to grab first food so random food spawns
-
     print_state(snake)
-    print(f"{reward:<5}{snake.max().item():^6}{highscore:>5}")
+    print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
 
     while reward != -10:
         sleep(0.1)
@@ -56,13 +56,13 @@ def single_bot_game(highscore=0):
         scores = [do(future, i) for i, future in enumerate(futures)]
         snake = futures[scores.index(max(scores))]
         reward = max(scores)
-        
         print_state(snake)
-        print(f"{reward:<5}{snake.max().item():^6}{highscore:>5}")
+        print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
         
     return snake.max().item()-3
 
+
 if __name__ == '__main__':
     highscore = 0
-    while highscore < 61:
-        highscore = max(highscore, single_bot_game(highscore))
+    while highscore < game_size**2 - 3:
+        highscore = max(highscore, single_bot_game(game_size, highscore))
