@@ -19,7 +19,7 @@ def do(snake: t.Tensor, action: int):
     pos_next = (pos_cur + (pos_cur - pos_prev) @ rotation) % T(snake.shape)
     
     if (snake[tuple(pos_next)] > 0).any():
-        return -10 #snake.max().item() #snake[tuple(pos_cur)].item()
+        return -10
     
     if snake[tuple(pos_next)] == -1:
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
@@ -31,12 +31,12 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return 10 if segs > prevsegs else (int(10-distaf) if distaf < distb4 else min(int(-(10-distaf)),-1)) #int(distaf < distb4) #int(-distaf)
+    return 10 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
 
 def getdists(snake):
-    head = divmod(t.argmax(snake).item(), snake.shape[1]) #(snake == t.max(snake)).nonzero(as_tuple=True)
+    head = divmod(t.argmax(snake).item(), snake.shape[1])
     food = divmod(t.argmin(snake).item(), snake.shape[1])
-    return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item() #t.cdist(). .unsqueeze(0)
+    return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item()
 
 def print_state(snake):
     for row in snake:
@@ -47,10 +47,8 @@ def print_state(snake):
 if __name__ == '__main__':
     board_size = 8
     snake = t.zeros((board_size, board_size), dtype=t.int)
-    #center = board_size // 2
-    #snake[0, :3] = T([1, 2,-1])
-    snake[0, :4] = T([1, 2, 3, -1])
-    score = do(snake, 1)  # needed so snake becomes 3 long and first random food spawns
+    snake[0, :4] = T([1, 2, 3, -1]) # snake starts off 4 long (after next line), so NN learns not to crash into self early.
+    score = do(snake, 1)  # snake needs to grab first food so random food spawns
     print()
     print_state(snake)
     print()

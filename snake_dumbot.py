@@ -19,7 +19,7 @@ def do(snake: t.Tensor, action: int):
     pos_next = (pos_cur + (pos_cur - pos_prev) @ rotation) % T(snake.shape)
     
     if (snake[tuple(pos_next)] > 0).any():
-        return -10
+        return -100
     
     if snake[tuple(pos_next)] == -1:
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
@@ -31,7 +31,7 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return 10 if segs > prevsegs else (int(10-distaf) if distaf < distb4 else min(int(-(10-distaf)),-1))
+    return 10 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
 
 def getdists(snake):
     head = divmod(t.argmax(snake).item(), snake.shape[1])
@@ -50,7 +50,7 @@ def single_bot_game(size=10, highscore=0):
     print_state(snake)
     print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
 
-    while reward != -10:
+    while reward != -100:
         sleep(0.1)
         futures = [snake.clone() for _ in range(3)]
         scores = [do(future, i) for i, future in enumerate(futures)]
