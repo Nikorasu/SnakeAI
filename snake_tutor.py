@@ -3,23 +3,15 @@ import torch as t
 from torch import tensor as T
 from numpy import unravel_index as unravel
 from time import sleep
-import pygame as pg
 
-# This is a simplified version of the classic Snake game, reworked to play
-# itself without a neural network, just a old-fashion bot, with depth-first search!
-# Highest 10x10 score I've seen it score thus far: 63
+# This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
+# This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
+# Highest score I've seen thus far: 50/64
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
-game_size = 10
-
-pg.init()
-
-# Set up some constants
-WIDTH, HEIGHT = 500, 500  # Window size
-CELL_SIZE = WIDTH // game_size  # Size of a cell in the grid
-
-# Create the window
-window = pg.display.set_mode((WIDTH, HEIGHT))
+cycles = 1000  # number of games to play
+game_size = 8  # has to be same size as version NN plays
+slowmode = False  # slows down the game so you can see what's going on
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
@@ -30,7 +22,7 @@ def do(snake: t.Tensor, action: int):
     pos_next = (pos_cur + (pos_cur - pos_prev) @ rotation) % T(snake.shape)
     
     if (snake[tuple(pos_next)] > 0).any():
-        return -100
+        return -10
     
     if snake[tuple(pos_next)] == -1:
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
@@ -54,27 +46,6 @@ def print_state(snake):
         row_str = ''.join([f"{value:2}" for value in row.tolist()])
         print(row_str)
 
-def draw_state(snake):
-    for e in pg.event.get():
-        if e.type == pg.QUIT or e.type == pg.KEYDOWN and (e.key == pg.K_ESCAPE or e.key == pg.K_q):
-            pg.quit()
-
-    window.fill((255, 255, 255))
-    max_val = snake.max().item() + 1
-    
-    for y in range(game_size):
-        for x in range(game_size):
-            value = snake[y, x].item()
-            if value > 0:  # Snake body
-                color = (200 * (max_val - value) // max_val, 255, 200 * (max_val - value) // max_val)
-            elif value == -1:  # Food
-                color = (255, 0, 0)
-            else:  # Empty space
-                color = (255, 255, 255)
-            pg.draw.rect(window, color, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-
-    pg.display.update()
-
 def explore_path(snake, depth=0, max_depth=50):
     futures = [snake.clone() for _ in range(3)]
     scores = [do(future, i) for i, future in enumerate(futures)]
@@ -83,40 +54,39 @@ def explore_path(snake, depth=0, max_depth=50):
     
     if max(scores) == 10 or depth >= max_depth: # if food or max depth reached
         return bestaction
-    if max(scores) == -100 and depth != 0: # if trapped now, and not at depth 0
+    if max(scores) == -10 and depth != 0: # if trapped now, and not at depth 0
         return None
-    #if max(scores) != -100: # if not trapped
+    #if max(scores) != -10: # if not trapped
     result = explore_path(bestsnake, depth + 1, max_depth)
     if result == None and depth != 0: # meaning got trapped in future
         return None
     if depth == 0 and result == None: # if path leads to trap, try next best
         nextaction = scores.index(max(scores, key=lambda x: x != max(scores)))
-        bestaction = nextaction if scores[nextaction] != -100 else bestaction
+        bestaction = nextaction if scores[nextaction] != -10 else bestaction
     
     return bestaction
 
-def single_bot_game(size=10, highscore=0):
+def single_bot_game(size=8, highscore=0):
     snake = t.zeros((size, size), dtype=t.int)
-    snake[0, :3] = T([1, 2,-1])
+    snake[0, :4] = T([1,2,3, -1])
     reward = do(snake, 1)  # snake needs to grab first food so random food spawns
-    #print_state(snake)
-    draw_state(snake)
-    print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
+    print_state(snake)
+    print(f"{reward:<6}{snake.max().item()-4:^6}{highscore:>6}{cycles:>9}")
 
-    while reward != -100:
-        sleep(0.1)
+    while reward != -10:
+        if slowmode: sleep(0.1)
         #futures = [snake.clone() for _ in range(3)]
         #scores = [do(future, i) for i, future in enumerate(futures)]
         #snake = futures[scores.index(max(scores))]
         best_action = explore_path(snake)
-        reward = do(snake, best_action) if best_action != None else -100
-        #print_state(snake)
-        draw_state(snake)
-        print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
+        reward = do(snake, best_action) if best_action != None else -10
+        print_state(snake)
+        print(f"{reward:<6}{snake.max().item()-4:^6}{highscore:>6}{cycles:>9}")
         
-    return snake.max().item()-3
+    return snake.max().item()-4
 
 if __name__ == '__main__':
     highscore = 0
-    while highscore < game_size**2 - 3:
+    while highscore < game_size**2 - 3 or cycles > 0:
         highscore = max(highscore, single_bot_game(game_size, highscore))
+        cycles -= 1
