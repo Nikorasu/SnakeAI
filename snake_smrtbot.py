@@ -84,13 +84,13 @@ def explore_path(snake, depth=0, max_depth=50):
     
     if max(scores) == 10 or depth >= max_depth: # if food or max depth reached
         return bestaction
-    if max(scores) != -100: # if not trapped
-        result = explore_path(bestsnake, depth + 1, max_depth)
-        if result == None and depth != 0: # meaning got trapped in future
-            return None
     if max(scores) == -100 and depth != 0: # if trapped now, and not at depth 0
         return None
-    elif depth == 0 and result == None: # if path leads to trap, try next best
+    #if max(scores) != -100: # if not trapped
+    result = explore_path(bestsnake, depth + 1, max_depth)
+    if result == None and depth != 0: # meaning got trapped in future
+        return None
+    if depth == 0 and result == None: # if path leads to trap, try next best
         nextaction = scores.index(max(scores, key=lambda x: x != max(scores)))
         bestaction = nextaction if scores[nextaction] != -100 else bestaction
     
