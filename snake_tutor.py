@@ -14,7 +14,7 @@ num2save = 500     # number of high-scoring games to save (actual turn count may
 maxgames = 20000   # maximum number of games to play before giving up
 
 game_size = 8      # has to be same size as version NN plays
-startthresh = game_size**2//2  # starting threshold over which to save games
+threshold = 40     # threshold over which to save games, locked in this version
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
@@ -68,10 +68,18 @@ def explore_path(snake, depth=0, max_depth=50):
     
     return bestaction
 
+def trimdeath(game_data):
+    tens = 0  # this function tries to remove actions that lead up to death
+    for i in range(len(game_data)-1, -1, -1):
+        if game_data[i][2] == 10:
+            tens += 1
+            if tens == 2:
+                return game_data[:i+1]
+    return game_data
+
 class GameRecorder:
     def __init__(self):
         self.cycles = maxgames
-        self.threshold = startthresh
         self.bestgames_cache = []
         self.games_collected = 0
         self.turnspergame = []
@@ -86,6 +94,7 @@ class GameRecorder:
         reward = do(snake, 1) # snake needs to grab first food so random food spawns
 
         while reward != -10:
+            turns += 1
             state = snake.clone()
             best_action = explore_path(snake)
             reward = do(snake, best_action) if best_action != None else -10
@@ -93,20 +102,19 @@ class GameRecorder:
                 sleep(0.2)
                 print_state(snake)
                 print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
-            game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
-            turns += 1
+            if turns > game_size: # avoid saving some of the early easy moves
+                game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
         
         print_state(snake)
         print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
         
-        if snake.max().item()-4 >= self.threshold:
+        if snake.max().item()-4 >= threshold:
+            game_data = trimdeath(game_data)
             self.games_collected += 1
             self.bestgames_cache.extend(game_data)
             self.scores.append(snake.max().item()-4)
             self.turnspergame.append(turns)
-            print(f"Scored over {self.threshold}!  Saved: {self.games_collected}")
-            if len(self.scores) > 10 and sum(self.scores) / len(self.scores) > self.threshold:
-                self.threshold = sum(self.scores) // len(self.scores)
+            print(f"Scored over {threshold}!  Saved: {self.games_collected}")
         
         return snake.max().item()-4
     
@@ -118,12 +126,12 @@ class GameRecorder:
         print("\nDone!")
         print(f"Games collected:    {self.games_collected:>5}")
         print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>5}")
-        print(f"Total turns:        {sum(self.turnspergame):>5}")
-        print(f"Average score:      {self.threshold:>5}")
+        print(f"Total turns saved:  {len(self.bestgames_cache):>5}")
+        print(f"Average score:      {sum(self.scores) / len(self.scores):>5}")
         print(f"Highest score:      {self.highscore:>5}")
         print("\nSaving to file..")
 
-        t.save(self.bestgames_cache, f"snakeplaydata_{self.games_collected}_{self.threshold}.pt")
+        t.save(self.bestgames_cache, f"snakeHQdata_{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
 
 if __name__ == '__main__':
     tutor = GameRecorder()
