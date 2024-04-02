@@ -100,9 +100,9 @@ class GameRecorder:
             self.bestgames_cache.append(game_data)
             self.games_collected += 1
             self.scores.append(snake.max().item()-4)
-            print(f"Scored over {self.threshold}! Saved!")
+            print(f"Scored over {self.threshold}! Saved: {self.games_collected} / {num2save}")
             if len(self.scores) > 10 and sum(self.scores) / len(self.scores) > self.threshold:
-                self.threshold = sum(self.scores) / len(self.scores)
+                self.threshold = sum(self.scores) // len(self.scores)
         
         return snake.max().item()-4
     
