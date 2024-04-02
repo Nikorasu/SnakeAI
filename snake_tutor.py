@@ -7,7 +7,7 @@ from time import sleep
 # This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
 # This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
-# hs 51/64
+# hs 52/64
 
 slowmode = False   # slows things down so you can watch what's going on
 num2save = 500     # number of high-scoring games to save (actual turn count may vary)
@@ -83,7 +83,7 @@ class GameRecorder:
         turns = 0
         snake = t.zeros((game_size, game_size), dtype=t.int)
         snake[0, :4] = T([1,2,3, -1])
-        reward = do(snake, 1)  # snake needs to grab first food so random food spawns
+        reward = do(snake, 1) # snake needs to grab first food so random food spawns
 
         while reward != -10:
             state = snake.clone()
@@ -101,7 +101,7 @@ class GameRecorder:
         
         if snake.max().item()-4 >= self.threshold:
             self.games_collected += 1
-            self.bestgames_cache.append(game_data)
+            self.bestgames_cache.extend(game_data)
             self.scores.append(snake.max().item()-4)
             self.turnspergame.append(turns)
             print(f"Scored over {self.threshold}!  Saved: {self.games_collected}")
@@ -118,7 +118,7 @@ class GameRecorder:
         print("\nDone!")
         print(f"Games collected:    {self.games_collected:>5}")
         print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>5}")
-        print(f"Total turns:        {len(self.bestgames_cache):>5}")
+        print(f"Total turns:        {sum(self.turnspergame):>5}")
         print(f"Average score:      {self.threshold:>5}")
         print(f"Highest score:      {self.highscore:>5}")
         print("\nSaving to file..")
