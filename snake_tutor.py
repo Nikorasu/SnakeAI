@@ -11,7 +11,7 @@ from time import sleep
 
 slowmode = False   # slows things down so you can watch what's going on
 num2save = 1000    # number of games that score over 40 to save (actual turn count may vary)
-maxcycles = 20000  # number of games to play
+maxcycles = 20000  # maximum number of games to play
 
 game_size = 8      # has to be same size as version NN plays
 startthresh = game_size**2//2  # starting threshold over which to save games
