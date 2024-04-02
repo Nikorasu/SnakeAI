@@ -12,7 +12,7 @@ from time import sleep
 slowmode = False   # slows things down so you can watch what's going on
 num2save = 500     # number of high-scoring games to save (actual turn count may vary)
 maxgames = 20000   # maximum number of games to play before giving up
-
+trimends = False   # removes the earliest moves and moves that resulted in death.
 game_size = 8      # has to be same size as version NN plays
 threshold = 40     # threshold over which to save games, locked in this version
 
@@ -102,14 +102,15 @@ class GameRecorder:
                 sleep(0.2)
                 print_state(snake)
                 print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
-            if turns > game_size: # avoid saving some of the early easy moves
+            if turns > game_size or not trimends: # to avoid saving some of the early easy moves
                 game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
         
         print_state(snake)
         print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
         
         if snake.max().item()-4 >= threshold:
-            game_data = trimdeath(game_data)
+            if trimends:
+                game_data = trimdeath(game_data)
             self.games_collected += 1
             self.bestgames_cache.extend(game_data)
             self.scores.append(snake.max().item()-4)
@@ -131,7 +132,7 @@ class GameRecorder:
         print(f"Highest score:      {self.highscore:>5}")
         print("\nSaving to file..")
 
-        t.save(self.bestgames_cache, f"snakedata_{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
+        t.save(self.bestgames_cache, f"snakedata_{'t' if trimends else ''}{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
 
 if __name__ == '__main__':
     tutor = GameRecorder()
