@@ -9,11 +9,12 @@ from time import sleep
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 # hs 51/64
 
-maxcycles = 10000  # number of games to play
+slowmode = False   # slows things down so you can watch what's going on
 num2save = 1000    # number of games that score over 40 to save (actual turn count may vary)
+maxcycles = 20000  # number of games to play
+
 game_size = 8      # has to be same size as version NN plays
-slowmode = False   # slows down the game so you can see what's going on
-startthresh = 32   # starting threshold over which to save games
+startthresh = game_size**2//2  # starting threshold over which to save games
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
