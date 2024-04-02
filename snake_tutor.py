@@ -10,8 +10,8 @@ from time import sleep
 # hs 51/64
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 1000    # number of games that score over 40 to save (actual turn count may vary)
-maxcycles = 20000  # maximum number of games to play
+num2save = 500     # number of high-scoring games to save (actual turn count may vary)
+maxgames = 20000   # maximum number of games to play before giving up
 
 game_size = 8      # has to be same size as version NN plays
 startthresh = game_size**2//2  # starting threshold over which to save games
@@ -71,15 +71,17 @@ def explore_path(snake, depth=0, max_depth=50):
 
 class GameRecorder:
     def __init__(self):
-        self.cycles = maxcycles
+        self.cycles = maxgames
         self.threshold = startthresh
         self.bestgames_cache = []
         self.games_collected = 0
+        self.turnspergame = []
         self.scores = []
         self.highscore = 0
 
     def single_bot_game(self):
         game_data = []
+        turns = 0
         snake = t.zeros((game_size, game_size), dtype=t.int)
         snake[0, :4] = T([1,2,3, -1])
         reward = do(snake, 1)  # snake needs to grab first food so random food spawns
@@ -93,15 +95,17 @@ class GameRecorder:
                 print_state(snake)
                 print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
             game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
+            turns += 1
         
         print_state(snake)
         print(f"{snake.max().item()-4:<6}{self.highscore:^6}{self.cycles:>9}")
         
         if snake.max().item()-4 >= self.threshold:
-            self.bestgames_cache.append(game_data)
             self.games_collected += 1
+            self.bestgames_cache.append(game_data)
             self.scores.append(snake.max().item()-4)
-            print(f"Scored over {self.threshold}! Saved: {self.games_collected} / {num2save}")
+            self.turnspergame.append(turns)
+            print(f"Scored over {self.threshold}!  Saved: {self.games_collected}")
             if len(self.scores) > 10 and sum(self.scores) / len(self.scores) > self.threshold:
                 self.threshold = sum(self.scores) // len(self.scores)
         
@@ -112,11 +116,13 @@ class GameRecorder:
             self.highscore = max(self.highscore, self.single_bot_game())
             self.cycles -= 1
 
-        print("Finished!")
-        print(f"Games collected: {self.games_collected}")
-        print(f"Average score: {self.threshold}")
-        print(f"Highest score: {self.highscore}")
-        print("Saving game data...")
+        print("\nDone!")
+        print(f"Games collected:    {self.games_collected:>5}")
+        print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>5}")
+        print(f"Total turns:        {len(self.bestgames_cache):>5}")
+        print(f"Average score:      {self.threshold:>5}")
+        print(f"Highest score:      {self.highscore:>5}")
+        print("\nSaving to file..")
 
         t.save(self.bestgames_cache, f"snakeplaydata_{self.games_collected}_{self.threshold}.pt")
 
