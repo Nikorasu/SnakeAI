@@ -7,7 +7,7 @@ from time import sleep
 # This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
 # This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
-# old hs 50/64
+# hs 51/64
 
 maxcycles = 10000  # number of games to play
 num2save = 1000    # number of games that score over 40 to save (actual turn count may vary)
@@ -82,17 +82,20 @@ class GameRecorder:
         snake = t.zeros((game_size, game_size), dtype=t.int)
         snake[0, :4] = T([1,2,3, -1])
         reward = do(snake, 1)  # snake needs to grab first food so random food spawns
-        print_state(snake)
-        print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
 
         while reward != -10:
             state = snake.clone()
-            if slowmode: sleep(0.1)
             best_action = explore_path(snake)
             reward = do(snake, best_action) if best_action != None else -10
-            print_state(snake)
-            print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
+            if slowmode:
+                sleep(0.2)
+                print_state(snake)
+                print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
             game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
+        
+        print_state(snake)
+        print(f"{snake.max().item()-4:<6}{self.highscore:^6}{self.cycles:>9}")
+        
         if snake.max().item()-4 >= self.threshold:
             self.bestgames_cache.append(game_data)
             self.games_collected += 1
