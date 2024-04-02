@@ -59,7 +59,6 @@ def explore_path(snake, depth=0, max_depth=50):
         return bestaction
     if max(scores) == -10 and depth != 0: # if trapped now, and not at depth 0
         return None
-    #if max(scores) != -10: # if not trapped
     result = explore_path(bestsnake, depth + 1, max_depth)
     if result == None and depth != 0: # meaning got trapped in future
         return None
@@ -93,12 +92,12 @@ class GameRecorder:
             if slowmode:
                 sleep(0.2)
                 print_state(snake)
-                print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
+                print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
             game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
             turns += 1
         
         print_state(snake)
-        print(f"{snake.max().item()-4:<6}{self.highscore:^6}{self.cycles:>9}")
+        print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
         
         if snake.max().item()-4 >= self.threshold:
             self.games_collected += 1
