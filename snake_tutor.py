@@ -6,12 +6,14 @@ from time import sleep
 
 # This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
 # This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
-# Highest score I've seen thus far: 50/64
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
+# old hs 50/64
 
-cycles = 1000  # number of games to play
-game_size = 8  # has to be same size as version NN plays
-slowmode = False  # slows down the game so you can see what's going on
+maxcycles = 10000  # number of games to play
+num2save = 1000    # number of games that score over 40 to save (actual turn count may vary)
+game_size = 8      # has to be same size as version NN plays
+slowmode = False   # slows down the game so you can see what's going on
+startthresh = 32   # starting threshold over which to save games
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
@@ -66,27 +68,54 @@ def explore_path(snake, depth=0, max_depth=50):
     
     return bestaction
 
-def single_bot_game(size=8, highscore=0):
-    snake = t.zeros((size, size), dtype=t.int)
-    snake[0, :4] = T([1,2,3, -1])
-    reward = do(snake, 1)  # snake needs to grab first food so random food spawns
-    print_state(snake)
-    print(f"{reward:<6}{snake.max().item()-4:^6}{highscore:>6}{cycles:>9}")
+class GameRecorder:
+    def __init__(self):
+        self.cycles = maxcycles
+        self.threshold = startthresh
+        self.bestgames_cache = []
+        self.games_collected = 0
+        self.scores = []
+        self.highscore = 0
 
-    while reward != -10:
-        if slowmode: sleep(0.1)
-        #futures = [snake.clone() for _ in range(3)]
-        #scores = [do(future, i) for i, future in enumerate(futures)]
-        #snake = futures[scores.index(max(scores))]
-        best_action = explore_path(snake)
-        reward = do(snake, best_action) if best_action != None else -10
+    def single_bot_game(self):
+        game_data = []
+        snake = t.zeros((game_size, game_size), dtype=t.int)
+        snake[0, :4] = T([1,2,3, -1])
+        reward = do(snake, 1)  # snake needs to grab first food so random food spawns
         print_state(snake)
-        print(f"{reward:<6}{snake.max().item()-4:^6}{highscore:>6}{cycles:>9}")
+        print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
+
+        while reward != -10:
+            state = snake.clone()
+            if slowmode: sleep(0.1)
+            best_action = explore_path(snake)
+            reward = do(snake, best_action) if best_action != None else -10
+            print_state(snake)
+            print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{self.cycles:>9}")
+            game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
+        if snake.max().item()-4 >= self.threshold:
+            self.bestgames_cache.append(game_data)
+            self.games_collected += 1
+            self.scores.append(snake.max().item()-4)
+            print(f"Scored over {self.threshold}! Saved!")
+            if len(self.scores) > 10 and sum(self.scores) / len(self.scores) > self.threshold:
+                self.threshold = sum(self.scores) / len(self.scores)
         
-    return snake.max().item()-4
+        return snake.max().item()-4
+    
+    def run(self):
+        while self.games_collected < num2save and self.cycles > 0:
+            self.highscore = max(self.highscore, self.single_bot_game())
+            self.cycles -= 1
+
+        print("Finished!")
+        print(f"Games collected: {self.games_collected}")
+        print(f"Average score: {self.threshold}")
+        print(f"Highest score: {self.highscore}")
+        print("Saving game data...")
+
+        t.save(self.bestgames_cache, f"snakeplaydata_{self.games_collected}_{self.threshold}.pt")
 
 if __name__ == '__main__':
-    highscore = 0
-    while highscore < game_size**2 - 3 or cycles > 0:
-        highscore = max(highscore, single_bot_game(game_size, highscore))
-        cycles -= 1
+    tutor = GameRecorder()
+    tutor.run()
