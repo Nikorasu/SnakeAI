@@ -131,7 +131,7 @@ class GameRecorder:
         print(f"Highest score:      {self.highscore:>5}")
         print("\nSaving to file..")
 
-        t.save(self.bestgames_cache, f"snakeHQdata_{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
+        t.save(self.bestgames_cache, f"snakedata_{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
 
 if __name__ == '__main__':
     tutor = GameRecorder()
