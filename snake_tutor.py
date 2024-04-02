@@ -125,11 +125,11 @@ class GameRecorder:
             self.cycles -= 1
 
         print("\nDone!")
-        print(f"Games collected:    {self.games_collected:>5}")
-        print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>5}")
-        print(f"Total turns saved:  {len(self.bestgames_cache):>5}")
-        print(f"Average score:      {sum(self.scores) / len(self.scores):>5}")
-        print(f"Highest score:      {self.highscore:>5}")
+        print(f"Games collected:    {self.games_collected:>8}")
+        print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>8.1f}")
+        print(f"Total turns saved:  {len(self.bestgames_cache):>8,}")
+        print(f"Average score:      {sum(self.scores) / len(self.scores):>8.3f}")
+        print(f"Highest score:      {self.highscore:>8}")
         print("\nSaving to file..")
 
         t.save(self.bestgames_cache, f"snakedata_{'t' if trimends else ''}{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
