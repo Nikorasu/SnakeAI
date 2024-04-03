@@ -54,7 +54,7 @@ if __name__ == '__main__':
     print()
     print_state(snake)
     print()
-    play = Play() # for neural network input
+    play = Play('snake_model.pth') # for neural network input
 
     while score != -10:
         #action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input

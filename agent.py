@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+#from random import shuffle
 
 # Check if CUDA is available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -11,18 +12,20 @@ class SnakeNet(nn.Module):
         super(SnakeNet, self).__init__()
         self.fc1 = nn.Linear(64, 128)
         self.fc2 = nn.Linear(128, 256)
-        self.fc3 = nn.Linear(256, 64)
-        self.fc4 = nn.Linear(64, 3)
+        self.fc3 = nn.Linear(256, 128)
+        self.fc4 = nn.Linear(128, 64)
+        self.fc5 = nn.Linear(64, 3)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))
-        x = self.fc4(x)
+        x = torch.relu(self.fc4(x))
+        x = self.fc5(x)
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=100, batch_size=32, learning_rate=0.001):
+def train(datafile, num_epochs=100, batch_size=128, learning_rate=0.001):
     data = torch.load(datafile)
     model = SnakeNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -36,7 +39,6 @@ def train(datafile, num_epochs=100, batch_size=32, learning_rate=0.001):
             batch_actions = torch.tensor(batch_actions, dtype=torch.long).to(device)
 
             optimizer.zero_grad()
-
             outputs = model(batch_states)
             loss = criterion(outputs, batch_actions)
             loss.backward()
@@ -45,15 +47,16 @@ def train(datafile, num_epochs=100, batch_size=32, learning_rate=0.001):
             running_loss += loss.item()
 
         print(f"Epoch {epoch+1}, Loss: {running_loss / len(data)}")
+        #shuffle(data)
 
     print("Training complete!")
     torch.save(model.state_dict(), "snake_model.pth")
 
 # Function to load the model and play a turn
 class Play:
-    def __init__(self):
+    def __init__(self,filename):
         self.model = SnakeNet().to(device)
-        self.model.load_state_dict(torch.load('snake_model.pth'))
+        self.model.load_state_dict(torch.load(filename))
         self.model.eval()
 
     def turn(self, state):
@@ -64,5 +67,5 @@ class Play:
 
 if __name__ == "__main__":
     # Train the model
-    train('snakedata_100_42.pt')
+    train('snakedata_1000_35.pt')
     print("Model trained and saved as snake_model.pt")
