@@ -10,8 +10,8 @@ from time import sleep
 # hs 52/64
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 500     # number of high-scoring games to save (actual turn count may vary)
-maxgames = 20000   # maximum number of games to play before giving up
+num2save = 100     # number of high-scoring games to save (actual turn count may vary)
+maxgames = 10000   # maximum number of games to play before giving up
 trimends = False   # removes the earliest moves and moves that resulted in death.
 game_size = 8      # has to be same size as version NN plays
 threshold = 40     # threshold over which to save games, locked in this version

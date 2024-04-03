@@ -2,6 +2,7 @@
 import torch as t
 from torch import tensor as T
 from numpy import unravel_index as unravel
+from time import sleep
 
 # This is a simplified version of the classic Snake game, reworked specifically for implementing into machine learning.
 # I've added a reward system to the do() function's return. Reward increases up to 9 the closer snake gets to food, moving away returns the negative.
@@ -45,6 +46,7 @@ def print_state(snake):
 
 # The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
+    from agent import Play
     board_size = 8
     snake = t.zeros((board_size, board_size), dtype=t.int)
     snake[0, :4] = T([1, 2, 3, -1]) # snake starts off 4 long (after next line), so NN learns not to crash into self early.
@@ -52,12 +54,15 @@ if __name__ == '__main__':
     print()
     print_state(snake)
     print()
+    play = Play() # for neural network input
 
     while score != -10:
-        action = input("Enter action (0: left, 1: forward, 2: right): ")
+        #action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
+        action = play.turn(snake) # for neural network input
         print()
         score = do(snake, int(action) if action != '' else 1)
         print_state(snake)
         print(score)
+        sleep(0.2)
 
     print('Score:', snake.max().item()-4)
