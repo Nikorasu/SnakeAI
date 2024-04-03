@@ -47,6 +47,7 @@ def print_state(snake):
 # The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
     from agent import Play
+    play = Play('snake_model.pth') # for neural network input
     board_size = 8
     snake = t.zeros((board_size, board_size), dtype=t.int)
     snake[0, :4] = T([1, 2, 3, -1]) # snake starts off 4 long (after next line), so NN learns not to crash into self early.
@@ -54,7 +55,6 @@ if __name__ == '__main__':
     print()
     print_state(snake)
     print()
-    play = Play('snake_model.pth') # for neural network input
 
     while score != -10:
         #action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input

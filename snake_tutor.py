@@ -7,10 +7,10 @@ from time import sleep
 # This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
 # This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
-# hs 52/64
+# hs 53/64
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 1000    # number of high-scoring games to save (actual turn count may vary)
+num2save = 2000    # number of high-scoring games to save (actual turn count may vary)
 maxgames = 10000   # maximum number of games to play before giving up
 trimends = True    # removes data after 2nd to last food eaten, that resulted in death.
 game_size = 8      # has to be same size as version NN plays
