@@ -23,7 +23,7 @@ def explore_path(snake, depth=0, max_depth=50):
     result = bestaction = scores.index(max(scores))
     bestsnake = futures[scores.index(max(scores))]
     
-    if max(scores) == 10 or depth >= max_depth: # if food or max depth reached
+    if max(scores) >= 10 or depth >= max_depth: # if food or max depth reached
         return bestaction
     if max(scores) == -10 and depth != 0: # if trapped now, and not at depth 0
         return None
@@ -39,7 +39,7 @@ def explore_path(snake, depth=0, max_depth=50):
 def trimdeath(game_data):
     tens = 0  # this function tries to remove actions that lead up to death
     for i in range(len(game_data)-1, -1, -1):
-        if game_data[i][2] == 10:
+        if game_data[i][2] >= 10:
             tens += 1
             if tens == 2:
                 return game_data[:i+1]

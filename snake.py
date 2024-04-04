@@ -34,7 +34,7 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return 10 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
+    return 11+snake.max().item()-4 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
 
 def getdists(snake):
     head = divmod(t.argmax(snake).item(), snake.shape[1])
@@ -76,9 +76,9 @@ if __name__ == '__main__':
             timeout -= 1
             if timeout == 0:
                 reward = -10
-            elif reward == 10:
+            elif reward >= 10:
                 timeout = 42
-            print(f"{reward}  {'Got Food!' if reward==10 else 'Game Over!' if reward==-10 else ''}")
+            print(f"{reward}  {'Got Food!' if reward>=10 else 'Game Over!' if reward==-10 else ''}")
             sleep(0.3)
 
         endscores.append(snake.max().item()-4)
