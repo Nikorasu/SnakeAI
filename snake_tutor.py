@@ -70,7 +70,7 @@ class GameRecorder:
                 print_state(snake)
                 print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
             #if turns > game_size or not trimends: # to avoid saving some of the early easy moves
-            game_data.append([state, best_action])#, reward, snake.clone()]) # state, action, reward, next_state
+            game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
         
         print_state(snake)
         print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
