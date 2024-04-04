@@ -100,7 +100,7 @@ class GameRecorder:
         print(f"Highest score:      {self.highscore:>9}")
         print("\nSaving to file..")
 
-        t.save(self.bestgames_cache, f"snakdat_{'t' if trimends else ''}{self.games_collected}_{sum(self.scores) // len(self.scores)}.pt")
+        t.save(self.bestgames_cache, f"snakdat_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt")
 
 if __name__ == '__main__':
     tutor = GameRecorder()
