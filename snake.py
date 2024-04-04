@@ -11,6 +11,8 @@ from time import sleep
 # The neural network outputs will correspond to the available actions (0, 1, 2) for left, forward, right.
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
+manual_input = False  # for debug testing
+
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
     distb4 = getdists(snake)
@@ -46,11 +48,12 @@ def print_state(snake):
 
 # The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
-    from agent import Play
+    if not manual_input:
+        from agent import Play
+        play = Play('snake_model.pth') # for neural network input
     
-    play = Play('snake_model.pth') # for neural network input
     board_size = 8
-    count = 10
+    count = 1 if manual_input else 10
     endscores = []
     
     while count > 0:
@@ -63,8 +66,10 @@ if __name__ == '__main__':
         print()
 
         while reward != -10:
-            #action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
-            action = play.turn(snake) # for neural network input
+            if manual_input:
+                action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
+            else:
+                action = play.turn(snake) # for neural network input
             print()
             reward = do(snake, int(action) if action != '' else 1)
             print_state(snake)

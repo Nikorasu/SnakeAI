@@ -11,22 +11,20 @@ print(f"Using {device}")
 class SnakeNet(nn.Module):
     def __init__(self):
         super(SnakeNet, self).__init__()
-        self.fc1 = nn.Linear(64, 128)
-        self.fc2 = nn.Linear(128, 256)
-        self.fc3 = nn.Linear(256, 128)
-        self.fc4 = nn.Linear(128, 64)
-        self.fc5 = nn.Linear(64, 3)
+        self.fc1 = nn.Linear(64, 256)
+        self.fc2 = nn.Linear(256, 256)
+        self.fc3 = nn.Linear(256, 64)
+        self.fc4 = nn.Linear(64, 3)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))
-        x = torch.relu(self.fc4(x))
-        x = self.fc5(x)
+        x = self.fc4(x)
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=200, batch_size=128, learning_rate=0.0001):
+def train(datafile, num_epochs=100, batch_size=128, learning_rate=0.001):
     data = torch.load(datafile)
     model = SnakeNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -68,5 +66,5 @@ class Play:
 
 if __name__ == "__main__":
     # Train the model
-    train('snakedata_t2000_37.pt')
+    train('snakdat_t1000_42.pt')
     print("Model trained and saved as snake_model.pt")
