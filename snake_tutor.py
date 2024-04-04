@@ -13,7 +13,7 @@ slowmode = False   # slows things down so you can watch what's going on
 num2save = 100     # number of high-scoring games to save (actual turn count may vary)
 maxgames = 10000   # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
-threshold = 42     # threshold over which to save games, locked in this version
+threshold = 40     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little.
 trimend = False    # removes data after 2nd to last food eaten, as it usually leads to dead-ends.
 
