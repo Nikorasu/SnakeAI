@@ -47,22 +47,40 @@ def print_state(snake):
 # The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
     from agent import Play
+    
     play = Play('snake_model.pth') # for neural network input
     board_size = 8
-    snake = t.zeros((board_size, board_size), dtype=t.int)
-    snake[0, :4] = T([1, 2, 3, -1]) # snake starts off 4 long (after next line), so NN learns not to crash into self early.
-    score = do(snake, 1)  # snake needs to grab first food so random food spawns
-    print()
-    print_state(snake)
-    print()
-
-    while score != -10:
-        #action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
-        action = play.turn(snake) # for neural network input
+    count = 10
+    endscores = []
+    
+    while count > 0:
+        timeout = 42 # if snake goes 42 turns without eating end game
+        snake = t.zeros((board_size, board_size), dtype=t.int)
+        snake[0, :4] = T([1, 2, 3, -1]) # snake starts off 4 long (after next line), so NN learns not to crash into self early.
+        reward = do(snake, 1)  # snake needs to grab first food so random food spawns
         print()
-        score = do(snake, int(action) if action != '' else 1)
         print_state(snake)
-        print(score)
-        sleep(0.2)
+        print()
 
-    print('Score:', snake.max().item()-4)
+        while reward != -10:
+            #action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
+            action = play.turn(snake) # for neural network input
+            print()
+            reward = do(snake, int(action) if action != '' else 1)
+            print_state(snake)
+            timeout -= 1
+            if timeout == 0:
+                reward = -10
+            elif reward == 10:
+                timeout = 42
+            print(f"{reward}  {'Got Food!' if reward==10 else 'Game Over!' if reward==-10 else ''}")
+            sleep(0.3)
+
+        endscores.append(snake.max().item()-4)
+        print('Score:', endscores[-1])
+        sleep(1)
+        count -= 1
+    
+    print(f'\nHigh Score:     {max(endscores):>4}')
+    print(f'Average score:  {sum(endscores) / len(endscores):>4.1f}')
+    print(f'\nScores: {endscores}')

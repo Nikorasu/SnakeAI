@@ -10,11 +10,11 @@ from time import sleep
 # hs 53/64
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 2000    # number of high-scoring games to save (actual turn count may vary)
-maxgames = 10000   # maximum number of games to play before giving up
+num2save = 5000    # number of high-scoring games to save (actual turn count may vary)
+maxgames = 50000   # maximum number of games to play before giving up
 trimends = True    # removes data after 2nd to last food eaten, that resulted in death.
 game_size = 8      # has to be same size as version NN plays
-threshold = 35     # threshold over which to save games, locked in this version
+threshold = 32     # threshold over which to save games, locked in this version
 
 def explore_path(snake, depth=0, max_depth=50):
     futures = [snake.clone() for _ in range(3)]
@@ -70,7 +70,7 @@ class GameRecorder:
                 print_state(snake)
                 print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
             #if turns > game_size or not trimends: # to avoid saving some of the early easy moves
-            game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
+            game_data.append([state, best_action])#, reward, snake.clone()]) # state, action, reward, next_state
         
         print_state(snake)
         print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")

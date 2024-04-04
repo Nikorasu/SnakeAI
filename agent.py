@@ -11,20 +11,22 @@ print(f"Using {device}")
 class SnakeNet(nn.Module):
     def __init__(self):
         super(SnakeNet, self).__init__()
-        self.fc1 = nn.Linear(64, 256)
-        self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, 64)
-        self.fc4 = nn.Linear(64, 3)
+        self.fc1 = nn.Linear(64, 128)
+        self.fc2 = nn.Linear(128, 256)
+        self.fc3 = nn.Linear(256, 128)
+        self.fc4 = nn.Linear(128, 64)
+        self.fc5 = nn.Linear(64, 3)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))
-        x = self.fc4(x)
+        x = torch.relu(self.fc4(x))
+        x = self.fc5(x)
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=200, batch_size=128, learning_rate=0.001):
+def train(datafile, num_epochs=200, batch_size=128, learning_rate=0.0001):
     data = torch.load(datafile)
     model = SnakeNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -59,7 +61,7 @@ class Play:
         self.model.eval()
 
     def turn(self, state):
-        state = torch.tensor(state, dtype=torch.float32, device=device).view(1, -1)
+        state = state.clone().detach().view(1, -1).to(device, dtype=torch.float32) #torch.tensor(state, dtype=torch.float32, device=device)
         output = self.model(state)
         action = output.max(1)[1].item()
         return action
