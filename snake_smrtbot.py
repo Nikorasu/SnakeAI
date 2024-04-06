@@ -66,7 +66,7 @@ def draw_state(snake):
         for x in range(game_size):
             value = snake[y, x].item()
             if value > 0:  # Snake body
-                color = (200 * (max_val - value) // max_val, 222, 200 * (max_val - value) // max_val)
+                color = (200 * (max_val - value) // max_val, 255, 200 * (max_val - value) // max_val)
             elif value == -1:  # Food
                 color = (222, 0, 0)
             else:  # Empty space
