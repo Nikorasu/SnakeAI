@@ -30,7 +30,7 @@ def do(snake: t.Tensor, action: int):
     pos_next = (pos_cur + (pos_cur - pos_prev) @ rotation) % T(snake.shape)
     
     if (snake[tuple(pos_next)] > 0).any():
-        return -100
+        return -10
     
     if snake[tuple(pos_next)] == -1:
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
@@ -42,7 +42,7 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return 10 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
+    return 10+segs-4 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
 
 def getdists(snake):
     head = divmod(t.argmax(snake).item(), snake.shape[1])
@@ -75,48 +75,41 @@ def draw_state(snake):
 
     pg.display.update()
 
-def explore_path(snake, depth=0, max_depth=50):
+def explore_path(snake, depth=0, max_depth=game_size**2//2):
     futures = [snake.clone() for _ in range(3)]
     scores = [do(future, i) for i, future in enumerate(futures)]
-    result = bestaction = scores.index(max(scores))
-    bestsnake = futures[scores.index(max(scores))]
-    
-    if max(scores) == 10 or depth >= max_depth: # if food or max depth reached
-        return bestaction
-    if max(scores) == -100 and depth != 0: # if trapped now, and not at depth 0
-        return None
-    #if max(scores) != -100: # if not trapped
-    result = explore_path(bestsnake, depth + 1, max_depth)
-    if result == None and depth != 0: # meaning got trapped in future
-        return None
+    bestaction = scores.index(max(scores))
+    bestsnake = futures[bestaction]
+    #if max(scores) >= 10: max_depth = depth + game_size//2
+    if depth >= max_depth or max(scores) >= 10: return bestaction  #or max(scores) >= 10
+    result = explore_path(bestsnake, depth + 1, max_depth) if max(scores) != -10 else None
     if depth == 0 and result == None: # if path leads to trap, try next best
         nextaction = scores.index(max(scores, key=lambda x: x != max(scores)))
-        bestaction = nextaction if scores[nextaction] != -100 else bestaction
-    
-    return bestaction
+        bestaction = nextaction if scores[nextaction] != -10 else bestaction
+    return bestaction if depth == 0 else result
 
-def single_bot_game(size=10, highscore=0):
-    snake = t.zeros((size, size), dtype=t.int)
+def single_bot_game():
+    snake = t.zeros((game_size, game_size), dtype=t.int)
     snake[0, :3] = T([1, 2,-1])
     reward = do(snake, 1)  # snake needs to grab first food so random food spawns
     #print_state(snake)
     draw_state(snake)
-    print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
 
-    while reward != -100:
+    while reward != -10:
         sleep(0.1)
-        #futures = [snake.clone() for _ in range(3)]
-        #scores = [do(future, i) for i, future in enumerate(futures)]
-        #snake = futures[scores.index(max(scores))]
-        best_action = explore_path(snake)
-        reward = do(snake, best_action) if best_action != None else -100
+        best_action = explore_path(snake, max_depth=game_size**2-snake.max().item())
+        reward = do(snake, best_action) if best_action != None else -10
         #print_state(snake)
         draw_state(snake)
-        print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
+        #print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
         
     return snake.max().item()-3
 
 if __name__ == '__main__':
     highscore = 0
+    endscores = []
     while highscore < game_size**2 - 3:
-        highscore = max(highscore, single_bot_game(game_size, highscore))
+        endscores.append(single_bot_game())
+        highscore = max(highscore, endscores[-1])
+        # print last score, average score, highscore on 1 line
+        print(f"Score:{endscores[-1]:>3}  Average:{sum(endscores)/len(endscores):>5.1f}  Highest:{highscore:>3}")
