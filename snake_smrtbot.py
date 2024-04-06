@@ -59,18 +59,18 @@ def draw_state(snake):
         if e.type == pg.QUIT or e.type == pg.KEYDOWN and (e.key == pg.K_ESCAPE or e.key == pg.K_q):
             pg.quit()
 
-    window.fill((255, 255, 255))
+    window.fill((200, 200, 200))
     max_val = snake.max().item() + 1
     
     for y in range(game_size):
         for x in range(game_size):
             value = snake[y, x].item()
             if value > 0:  # Snake body
-                color = (200 * (max_val - value) // max_val, 255, 200 * (max_val - value) // max_val)
+                color = (200 * (max_val - value) // max_val, 222, 200 * (max_val - value) // max_val)
             elif value == -1:  # Food
-                color = (255, 0, 0)
+                color = (222, 0, 0)
             else:  # Empty space
-                color = (255, 255, 255)
+                color = (200, 200, 200)
             pg.draw.rect(window, color, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
     pg.display.update()
@@ -81,7 +81,7 @@ def explore_path(snake, depth=0, max_depth=game_size**2//2):
     bestaction = scores.index(max(scores))
     bestsnake = futures[bestaction]
     #if max(scores) >= 10: max_depth = depth + game_size//2
-    if depth >= max_depth or max(scores) >= 10: return bestaction  #or max(scores) >= 10
+    if depth >= max_depth or max(scores) >= 10: return bestaction
     result = explore_path(bestsnake, depth + 1, max_depth) if max(scores) != -10 else None
     if depth == 0 and result == None: # if path leads to trap, try next best
         nextaction = scores.index(max(scores, key=lambda x: x != max(scores)))

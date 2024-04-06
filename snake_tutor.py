@@ -23,7 +23,7 @@ def explore_path(snake, depth=0, max_depth=game_size**2//2):
     bestaction = scores.index(max(scores))
     bestsnake = futures[bestaction]
     #if max(scores) >= 10: max_depth = depth + game_size//2
-    if depth >= max_depth or max(scores) >= 10: return bestaction  #or max(scores) >= 10
+    if depth >= max_depth or max(scores) >= 10: return bestaction
     result = explore_path(bestsnake, depth + 1, max_depth) if max(scores) != -10 else None
     if depth == 0 and result == None: # if path leads to trap, try next best
         nextaction = scores.index(max(scores, key=lambda x: x != max(scores)))
