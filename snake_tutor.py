@@ -17,24 +17,18 @@ threshold = 40     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little.
 trimend = False    # removes data after 2nd to last food eaten, as it usually leads to dead-ends.
 
-def explore_path(snake, depth=0, max_depth=50):
+def explore_path(snake, depth=0, max_depth=game_size**2//2):
     futures = [snake.clone() for _ in range(3)]
     scores = [do(future, i) for i, future in enumerate(futures)]
-    result = bestaction = scores.index(max(scores))
-    bestsnake = futures[scores.index(max(scores))]
-    
-    if max(scores) >= 10 or depth >= max_depth: # if food or max depth reached
-        return bestaction
-    if max(scores) == -10 and depth != 0: # if trapped now, and not at depth 0
-        return None
-    result = explore_path(bestsnake, depth + 1, max_depth)
-    if result == None and depth != 0: # meaning got trapped in future
-        return None
+    bestaction = scores.index(max(scores))
+    bestsnake = futures[bestaction]
+    #if max(scores) >= 10: max_depth = depth + game_size//2
+    if depth >= max_depth or max(scores) >= 10: return bestaction  #or max(scores) >= 10
+    result = explore_path(bestsnake, depth + 1, max_depth) if max(scores) != -10 else None
     if depth == 0 and result == None: # if path leads to trap, try next best
         nextaction = scores.index(max(scores, key=lambda x: x != max(scores)))
         bestaction = nextaction if scores[nextaction] != -10 else bestaction
-    
-    return bestaction
+    return bestaction if depth == 0 else result
 
 def trimdeath(game_data):
     tens = 0  # this function tries to remove actions that lead up to death
@@ -64,7 +58,7 @@ class GameRecorder:
         while reward != -10:
             turns += 1
             state = snake.clone()
-            best_action = explore_path(snake)
+            best_action = explore_path(snake, max_depth=game_size**2-snake.max().item())
             reward = do(snake, best_action) if best_action != None else -10
             if slowmode:
                 sleep(0.2)
@@ -100,7 +94,7 @@ class GameRecorder:
         print(f"Highest score:      {self.highscore:>9}")
         print("\nSaving to file..")
 
-        t.save(self.bestgames_cache, f"snakdat_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt")
+        t.save(self.bestgames_cache, f"snakedata_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt")
 
 if __name__ == '__main__':
     tutor = GameRecorder()
