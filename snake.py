@@ -50,7 +50,7 @@ def print_state(snake):
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
-        play = Play('snake_model.pth') # for neural network input
+        play = Play('snakemodel_7000_64-256x6-64x2-3.pth') # for neural network input
     
     board_size = 8
     count = 1 if manual_input else 10
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             elif reward >= 10:
                 timeout = 42
             print(f"{reward}  {'Got Food!' if reward>=10 else 'Game Over!' if reward==-10 else ''}")
-            sleep(0.3)
+            sleep(0.2)
 
         endscores.append(snake.max().item()-4)
         print('Score:', endscores[-1])

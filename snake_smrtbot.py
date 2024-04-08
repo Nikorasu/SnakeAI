@@ -80,7 +80,7 @@ def explore_path(snake, depth=0, max_depth=game_size**2//2):
     scores = [do(future, i) for i, future in enumerate(futures)]
     bestaction = scores.index(max(scores))
     bestsnake = futures[bestaction]
-    #if max(scores) >= 10: max_depth = depth + game_size//2
+    #if max(scores) >= 10: max_depth = depth + game_size//2 #tried to check after food, not much help.
     if depth >= max_depth or max(scores) >= 10: return bestaction
     result = explore_path(bestsnake, depth + 1, max_depth) if max(scores) != -10 else None
     if depth == 0 and result == None: # if path leads to trap, try next best
@@ -96,7 +96,7 @@ def single_bot_game():
     draw_state(snake)
 
     while reward != -10:
-        sleep(0.1)
+        sleep(0.05)
         best_action = explore_path(snake, max_depth=game_size**2-snake.max().item())
         reward = do(snake, best_action) if best_action != None else -10
         #print_state(snake)

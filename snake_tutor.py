@@ -7,22 +7,20 @@ from time import sleep
 # This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
 # This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
-# hs 53/64
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 100     # number of high-scoring games to save (actual turn count may vary)
-maxgames = 10000   # maximum number of games to play before giving up
+num2save = 7000    # number of high-scoring games to save (actual turn count may vary)
+maxgames = 50000   # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
-threshold = 40     # threshold over which to save games, locked in this version
+threshold = 35     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little.
-trimend = False    # removes data after 2nd to last food eaten, as it usually leads to dead-ends.
+trimend = True     # removes data after 2nd to last food eaten, as it usually leads to dead-ends.
 
-def explore_path(snake, depth=0, max_depth=game_size**2//2):
+def explore_path(snake, depth=0, max_depth=game_size**2//2): # hs 53 = 57/64
     futures = [snake.clone() for _ in range(3)]
     scores = [do(future, i) for i, future in enumerate(futures)]
     bestaction = scores.index(max(scores))
     bestsnake = futures[bestaction]
-    #if max(scores) >= 10: max_depth = depth + game_size//2
     if depth >= max_depth or max(scores) >= 10: return bestaction
     result = explore_path(bestsnake, depth + 1, max_depth) if max(scores) != -10 else None
     if depth == 0 and result == None: # if path leads to trap, try next best
@@ -65,7 +63,7 @@ class GameRecorder:
                 print_state(snake)
                 print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
             if turns > 3 or not trimstart: # avoids saving some of the very first moves, to randomize start more
-                game_data.append([state, best_action, reward, snake.clone()]) # state, action, reward, next_state
+                game_data.append([state, best_action, reward]) # state, action, reward, next_state #, snake.clone() for next_state
         
         print_state(snake)
         print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
@@ -94,7 +92,8 @@ class GameRecorder:
         print(f"Highest score:      {self.highscore:>9}")
         print("\nSaving to file..")
 
-        t.save(self.bestgames_cache, f"snakedata_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt")
+        datafile = f"snakedata_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt"
+        t.save(self.bestgames_cache, datafile)
 
 if __name__ == '__main__':
     tutor = GameRecorder()

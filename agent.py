@@ -13,18 +13,20 @@ class SnakeNet(nn.Module):
         super(SnakeNet, self).__init__()
         self.fc1 = nn.Linear(64, 256)
         self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, 64)
-        self.fc4 = nn.Linear(64, 3)
+        self.fc3 = nn.Linear(256, 256)
+        self.fc4 = nn.Linear(256, 64)
+        self.fc5 = nn.Linear(64, 3)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))
-        x = self.fc4(x)
+        x = torch.relu(self.fc4(x))
+        x = self.fc5(x)
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=100, batch_size=128, learning_rate=0.001):
+def train(datafile, num_epochs=300, batch_size=128, learning_rate=0.001):
     data = torch.load(datafile)
     model = SnakeNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -33,7 +35,7 @@ def train(datafile, num_epochs=100, batch_size=128, learning_rate=0.001):
     for epoch in range(num_epochs):
         running_loss = 0.0
         for i in range(0, len(data), batch_size):
-            batch_states, batch_actions, _, _ = zip(*data[i:i+batch_size])
+            batch_states, batch_actions, _ = zip(*data[i:i+batch_size]) #, _
             batch_states = torch.stack(batch_states).view(-1, 64).to(device, dtype=torch.float32)
             batch_actions = torch.tensor(batch_actions, dtype=torch.long).to(device)
 
@@ -49,7 +51,7 @@ def train(datafile, num_epochs=100, batch_size=128, learning_rate=0.001):
         #shuffle(data)
 
     print("Training complete!")
-    torch.save(model.state_dict(), "snake_model.pth")
+    torch.save(model.state_dict(), "snakemodel_7000_64-256x6-64x2-3.pth")
 
 # Function to load the model and play a turn
 class Play:
@@ -66,5 +68,5 @@ class Play:
 
 if __name__ == "__main__":
     # Train the model
-    train('snakdat_t1000_42.pt')
-    print("Model trained and saved as snake_model.pt")
+    train('snakedata_t7000t_38.pt')
+    print("Model trained and saved!")
