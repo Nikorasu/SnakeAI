@@ -9,14 +9,14 @@ from time import sleep
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 7000    # number of high-scoring games to save (actual turn count may vary)
+num2save = 10000   # number of high-scoring games to save (actual turn count may vary)
 maxgames = 50000   # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
 threshold = 35     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little.
 trimend = True     # removes data after 2nd to last food eaten, as it usually leads to dead-ends.
 
-def explore_path(snake, depth=0, max_depth=game_size**2//2): # hs 53 = 57/64
+def explore_path(snake, depth=0, max_depth=game_size**2//2): # hs 56 = 60/64
     futures = [snake.clone() for _ in range(3)]
     scores = [do(future, i) for i, future in enumerate(futures)]
     bestaction = scores.index(max(scores))
