@@ -15,18 +15,19 @@ class SnakeNet(nn.Module):
         self.fc1 = nn.Linear(64, 512)
         self.fc2 = nn.Linear(512, 512)
         self.fc3 = nn.Linear(512, 256)
-        self.fc4 = nn.Linear(256, 3)
-        #self.fc5 = nn.Linear(64, 3)
+        self.fc4 = nn.Linear(256, 64)
+        self.fc5 = nn.Linear(64, 3)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
         x = torch.relu(self.fc3(x))
-        x = self.fc4(x)
+        x = torch.relu(self.fc4(x))
+        x = self.fc5(x)
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=300, batch_size=128, learning_rate=0.001):
+def train(datafile, num_epochs=400, batch_size=512, learning_rate=0.001):
     print('Loading... ',end='')
     la = LoadingAnim()
     la.start()
@@ -56,7 +57,7 @@ def train(datafile, num_epochs=300, batch_size=128, learning_rate=0.001):
         #shuffle(data)
 
     print("Training complete!")
-    torch.save(model.state_dict(), "snakemodel_300x17k_64-512x4-256x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
+    torch.save(model.state_dict(), "snakemodel_400x17k_64-512x4-256x2-64x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
 
 # Function to load the model and play a turn
 class Play:

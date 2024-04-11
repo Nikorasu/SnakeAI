@@ -2,6 +2,7 @@
 import torch as t
 from torch import tensor as T
 from numpy import unravel_index as unravel
+import matplotlib.pyplot as plt
 from time import sleep
 import pygame as pg
 
@@ -50,9 +51,19 @@ def getdists(snake):
     return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item()
 
 def print_state(snake):
+    c = {'red': '\x1b[31m', 'green': '\x1b[32m', 'white': '\x1b[37m'}
     for row in snake:
-        row_str = ''.join([f"{value:2}" for value in row.tolist()])
-        print(row_str)
+        row_str = ''.join([f"{c['green'] if value>0 else c['red'] if value==-1 else c['white']}{value:2}" for value in row.tolist()])
+        print(row_str, end='\x1b[0m\n')
+
+def plot_state(snake):
+    plt.imshow(snake)
+    plt.title(f"Score: {snake.max().item() - 3}")  # Show snake length as score
+    plt.xticks([])  # remove ticks from x-axis
+    plt.yticks([])  # remove ticks from y-axis
+    plt.draw()
+    plt.pause(0.001)  # Short pause to update plot, adjust as needed
+    plt.clf()
 
 def draw_state(snake):
     for e in pg.event.get():
@@ -94,6 +105,7 @@ def single_bot_game():
     reward = do(snake, 1)  # snake needs to grab first food so random food spawns
     #print_state(snake)
     draw_state(snake)
+    #plot_state(snake)
 
     while reward != -10:
         sleep(0.05)
@@ -101,6 +113,7 @@ def single_bot_game():
         reward = do(snake, best_action) if best_action != None else -10
         #print_state(snake)
         draw_state(snake)
+        #plot_state(snake)
         #print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
         
     return snake.max().item()-3

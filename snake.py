@@ -42,15 +42,16 @@ def getdists(snake):
     return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item()
 
 def print_state(snake):
+    c = {'red': '\x1b[31m', 'green': '\x1b[32m', 'white': '\x1b[37m'}
     for row in snake:
-        row_str = ''.join([f"{value:2}" for value in row.tolist()])
-        print(row_str)
+        row_str = ''.join([f"{c['green'] if value>0 else c['red'] if value==-1 else c['white']}{value:2}" for value in row.tolist()])
+        print(row_str, end='\x1b[0m\n')
 
 # The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
-        play = Play('snakemodel_300x17k_64-512x4-256x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt
+        play = Play('snakemodel_400x17k_64-512x4-256x2-64x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt snakemodel_300x17k_64-512x4-256x2-3.pt
         print()
     
     board_size = 8
