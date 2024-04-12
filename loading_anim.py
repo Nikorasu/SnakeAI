@@ -79,6 +79,7 @@ class LoadingAnim:
 
     def start(self):
         self.thread = Thread(target=self._run)
+        self.thread.daemon = True  # Set the thread to daemon
         self.thread.start()
 
     def _run(self):
