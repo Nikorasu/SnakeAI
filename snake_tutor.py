@@ -61,23 +61,23 @@ class GameRecorder:
             if slowmode:
                 sleep(0.2)
                 print_state(snake)
-                print(f"{reward:<6}{snake.max().item()-4:^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
+                print(f"{reward:<6}{snake.max().item():^6}{self.highscore:>6}{1+maxgames-self.cycles:>9}")
             if turns > 3 or not trimstart: # avoids saving some of the very first moves, to randomize start more
                 game_data.append([state, best_action, reward]) # state, action, reward, next_state #, snake.clone() for next_state
         
         print_state(snake)
-        print(f"{snake.max().item()-4:<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
+        print(f"{snake.max().item():<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
         
-        if snake.max().item()-4 >= threshold:
+        if snake.max().item() >= threshold:
             if trimend:
                 game_data = trimdeath(game_data)
             self.games_collected += 1
             self.bestgames_cache.extend(game_data)
-            self.scores.append(snake.max().item()-4)
+            self.scores.append(snake.max().item())
             self.turnspergame.append(turns)
             print(f"Scored over {threshold}!  Saved: {self.games_collected}")
         
-        return snake.max().item()-4
+        return snake.max().item()
     
     def run(self):
         while self.games_collected < num2save and self.cycles > 0:

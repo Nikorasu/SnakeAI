@@ -12,4 +12,4 @@ negative when it's actions head away from food, scaling from 1 up to 9 (spot nex
 I haven't had much luck getting reinforcement learning working yet, so I've been trying simpler methods.
 Using the _tutor version, I recorded thousands of games to file, along with the action each turn made.
 That sorta gives me enough data to train a basic neural network on what move to make for whatever
-the game state might currently look like. So far the high score with that method is hovering around 20!
+the game state might currently look like.

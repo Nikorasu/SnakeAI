@@ -27,7 +27,7 @@ class SnakeNet(nn.Module):
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=400, batch_size=512, learning_rate=0.001):
+def train(datafile, num_epochs=500, batch_size=512, learning_rate=0.001):
     print('Loading... ',end='')
     la = LoadingAnim()
     la.start()
@@ -37,33 +37,34 @@ def train(datafile, num_epochs=400, batch_size=512, learning_rate=0.001):
     criterion = nn.CrossEntropyLoss()
     la.stop()
     print('Now training!..')
+    la = LoadingAnim(0)
 
     for epoch in range(num_epochs):
+        la.start()
         running_loss = 0.0
         for i in range(0, len(data), batch_size):
             batch_states, batch_actions, _ = zip(*data[i:i+batch_size]) #, _
             batch_states = torch.stack(batch_states).view(-1, 64).to(device, dtype=torch.float32)
             batch_actions = torch.tensor(batch_actions, dtype=torch.long).to(device)
-
             optimizer.zero_grad()
             outputs = model(batch_states)
             loss = criterion(outputs, batch_actions)
             loss.backward()
             optimizer.step()
-
             running_loss += loss.item()
-
-        print(f"Epoch {epoch+1}, Loss: {running_loss / len(data)}")
+        
+        la.stop()
+        print(f"\rEpoch {epoch+1}, Loss: {running_loss / len(data)}")
         #shuffle(data)
 
     print("Training complete!")
-    torch.save(model.state_dict(), "snakemodel_400x17k_64-512x4-256x2-64x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
+    torch.save(model.state_dict(), "snakemodel_500x17k_64-512x4-256x2-64x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
 
 # Function to load the model and play a turn
 class Play:
     def __init__(self,filename):
         print('Loading... ',end='')
-        la = LoadingAnim(False)
+        la = LoadingAnim(0)
         la.start()
         self.model = SnakeNet().to(device)
         self.model.load_state_dict(torch.load(filename))

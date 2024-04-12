@@ -6,7 +6,7 @@ from time import sleep
 
 # This is a simplified version of the classic Snake game, reworked specifically for implementing into machine learning.
 # I've added a reward system to the do() function's return. Reward increases up to 9 the closer snake gets to food, moving away returns the negative.
-# When food is eaten, that will reward 10. Game over indicated by a reward of -10, score is snake.max().item()-4
+# When food is eaten, that will reward 10. Game over indicated by a reward of -10, score is snake.max().item()
 # The neural network inputs will correspond directly to the snake tensor, which I think is 8 by 8, so 64 input neurons?
 # The neural network outputs will correspond to the available actions (0, 1, 2) for left, forward, right.
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
@@ -34,7 +34,7 @@ def do(snake: t.Tensor, action: int):
     
     segs = snake.max().item()
     distaf = getdists(snake)
-    return 10+segs-4 if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
+    return 10+segs if segs > prevsegs else (max(int(10-distaf),1) if distaf < distb4 else min(int(-(10-distaf)),-1))
 
 def getdists(snake):
     head = divmod(t.argmax(snake).item(), snake.shape[1])
@@ -51,7 +51,7 @@ def print_state(snake):
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
-        play = Play('snakemodel_400x17k_64-512x4-256x2-64x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt snakemodel_300x17k_64-512x4-256x2-3.pt
+        play = Play('snakemodel_500x17k_64-512x4-256x2-64x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt snakemodel_300x17k_64-512x4-256x2-3.pt
         print()
     
     board_size = 8
@@ -83,7 +83,7 @@ if __name__ == '__main__':
             print(f"{reward}  {'Got Food!' if reward>=10 else 'Game Over!' if reward==-10 else ''}")
             sleep(0.2)
 
-        endscores.append(snake.max().item()-4)
+        endscores.append(snake.max().item())
         print('Score:', endscores[-1])
         sleep(1)
         count -= 1

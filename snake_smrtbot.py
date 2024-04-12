@@ -13,14 +13,9 @@ import pygame as pg
 
 game_size = 10
 
-pg.init()
-
 # Set up some constants
-WIDTH, HEIGHT = 500, 500  # Window size
+WIDTH = 500  # Window size
 CELL_SIZE = WIDTH // game_size  # Size of a cell in the grid
-
-# Create the window
-window = pg.display.set_mode((WIDTH, HEIGHT))
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
@@ -65,26 +60,28 @@ def plot_state(snake):
     plt.pause(0.001)  # Short pause to update plot, adjust as needed
     plt.clf()
 
-def draw_state(snake):
-    for e in pg.event.get():
-        if e.type == pg.QUIT or e.type == pg.KEYDOWN and (e.key == pg.K_ESCAPE or e.key == pg.K_q):
-            pg.quit()
-
-    window.fill((200, 200, 200))
-    max_val = snake.max().item() + 1
+class PygameWindow:
+    def __init__(self):
+        pg.init()
+        self.window = pg.display.set_mode((WIDTH, WIDTH))
     
-    for y in range(game_size):
-        for x in range(game_size):
-            value = snake[y, x].item()
-            if value > 0:  # Snake body
-                color = (200 * (max_val - value) // max_val, 255, 200 * (max_val - value) // max_val)
-            elif value == -1:  # Food
-                color = (222, 0, 0)
-            else:  # Empty space
-                color = (200, 200, 200)
-            pg.draw.rect(window, color, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-
-    pg.display.update()
+    def draw_state(self, snake):
+        for e in pg.event.get():
+            if e.type == pg.QUIT or e.type == pg.KEYDOWN and (e.key == pg.K_ESCAPE or e.key == pg.K_q):
+                pg.quit()
+        self.window.fill((200, 200, 200))
+        max_val = snake.max().item() + 1
+        for y in range(game_size):
+            for x in range(game_size):
+                value = snake[y, x].item()
+                if value > 0:  # Snake body
+                    color = (200 * (max_val - value) // max_val, 255, 200 * (max_val - value) // max_val)
+                elif value == -1:  # Food
+                    color = (222, 0, 0)
+                else:  # Empty space
+                    color = (200, 200, 200)
+                pg.draw.rect(self.window, color, pg.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        pg.display.update()
 
 def explore_path(snake, depth=0, max_depth=game_size**2//2):
     futures = [snake.clone() for _ in range(3)]
@@ -103,16 +100,17 @@ def single_bot_game():
     snake = t.zeros((game_size, game_size), dtype=t.int)
     snake[0, :3] = T([1, 2,-1])
     reward = do(snake, 1)  # snake needs to grab first food so random food spawns
-    #print_state(snake)
-    draw_state(snake)
+    print_state(snake)
+    #draw_state(snake)
     #plot_state(snake)
 
     while reward != -10:
-        sleep(0.05)
+        sleep(0.1)
         best_action = explore_path(snake, max_depth=game_size**2-snake.max().item())
         reward = do(snake, best_action) if best_action != None else -10
-        #print_state(snake)
-        draw_state(snake)
+        print()
+        print_state(snake)
+        #draw_state(snake)
         #plot_state(snake)
         #print(f"{reward:<7}{snake.max().item()-3:^7}{highscore:>7}")
         
@@ -126,3 +124,4 @@ if __name__ == '__main__':
         highscore = max(highscore, endscores[-1])
         # print last score, average score, highscore on 1 line
         print(f"Score:{endscores[-1]:>3}  Average:{sum(endscores)/len(endscores):>5.1f}  Highest:{highscore:>3}")
+        sleep(1)
