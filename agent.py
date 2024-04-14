@@ -1,12 +1,12 @@
-import torch
+import torch as t
 import torch.nn as nn
 import torch.optim as optim
 from loading_anim import LoadingAnim
-#from random import shuffle
+from random import shuffle
 
 # Check if CUDA is available
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using {device}.. ")
+device = t.device("cuda" if t.cuda.is_available() else "cpu")
+print(f"Using {device} ")
 
 # Define the neural network architecture
 class SnakeNet(nn.Module):
@@ -19,33 +19,33 @@ class SnakeNet(nn.Module):
         self.fc5 = nn.Linear(64, 3)
 
     def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = torch.relu(self.fc3(x))
-        x = torch.relu(self.fc4(x))
+        x = t.relu(self.fc1(x))
+        x = t.relu(self.fc2(x))
+        x = t.relu(self.fc3(x))
+        x = t.relu(self.fc4(x))
         x = self.fc5(x)
         return x
 
 # Function to train the neural network
-def train(datafile, num_epochs=500, batch_size=512, learning_rate=0.001):
+def train(datafile, num_epochs=300, batch_size=1000, learning_rate=0.001):
     print('Loading... ',end='')
-    la = LoadingAnim()
-    la.start()
-    data = torch.load(datafile)
+    lal = LoadingAnim()
+    lal.start()
+    data = t.load(datafile)
     model = SnakeNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
-    la.stop()
+    lal.stop()
     print('Now training!..')
     la = LoadingAnim(0)
 
-    for epoch in range(num_epochs):
+    for epoch in range(1,num_epochs):
         la.start()
         running_loss = 0.0
         for i in range(0, len(data), batch_size):
             batch_states, batch_actions, _ = zip(*data[i:i+batch_size]) #, _
-            batch_states = torch.stack(batch_states).view(-1, 64).to(device, dtype=torch.float32)
-            batch_actions = torch.tensor(batch_actions, dtype=torch.long).to(device)
+            batch_states = t.stack(batch_states).view(-1, 64).to(device, dtype=t.float32)
+            batch_actions = t.tensor(batch_actions, dtype=t.long).to(device)
             optimizer.zero_grad()
             outputs = model(batch_states)
             loss = criterion(outputs, batch_actions)
@@ -54,11 +54,23 @@ def train(datafile, num_epochs=500, batch_size=512, learning_rate=0.001):
             running_loss += loss.item()
         
         la.stop()
-        print(f"\rEpoch {epoch+1}, Loss: {running_loss / len(data)}")
-        #shuffle(data)
+        print(f"\rEpoch {epoch}, Loss: {running_loss / len(data)}") # we should color/faint/darken based on whether loss goes up/down
+        
+        if epoch % (num_epochs//4) == 0: # 3 times during training, rotate the states "90 degrees"
+            print('Rotating states... ', end='')
+            lal.start()
+            data = [[t.rot90(state, -1, [0, 1]), action, reward] for state, action, reward in data]
+            lal.stop()
+            print()
+        elif epoch % 10 == 0: # otherwise every 10 epochs, shuffle the data
+            print('Shuffling data... ', end='')
+            la.start()
+            shuffle(data)
+            la.stop()
+            print()
 
     print("Training complete!")
-    torch.save(model.state_dict(), "snakemodel_500x17k_64-512x4-256x2-64x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
+    t.save(model.state_dict(), "model_sr27k_64-512x4-256x2-64x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
 
 # Function to load the model and play a turn
 class Play:
@@ -67,18 +79,18 @@ class Play:
         la = LoadingAnim(0)
         la.start()
         self.model = SnakeNet().to(device)
-        self.model.load_state_dict(torch.load(filename))
+        self.model.load_state_dict(t.load(filename))
         self.model.eval()
         la.stop()
         print('Game On!')
 
     def turn(self, state):
-        state = state.clone().detach().view(1, -1).to(device, dtype=torch.float32) #torch.tensor(state, dtype=torch.float32, device=device)
+        state = state.clone().detach().view(1, -1).to(device, dtype=t.float32) #t.tensor(state, dtype=t.float32, device=device)
         output = self.model(state)
         action = output.max(1)[1].item()
         return action
 
 if __name__ == "__main__":
     # Train the model
-    train('snakedata_t16946t_m.pt') #'snakedata_t9946t_38.pt'
+    train('data_t26946t_m.pt') #'snakedata_t9946t_38.pt'
     print("Model trained and saved!")

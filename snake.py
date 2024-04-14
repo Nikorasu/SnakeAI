@@ -51,7 +51,7 @@ def print_state(snake):
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
-        play = Play('snakemodel_500x17k_64-512x4-256x2-64x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt snakemodel_300x17k_64-512x4-256x2-3.pt
+        play = Play('model_sr27k_64-512x4-256x2-64x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt snakemodel_300x17k_64-512x4-256x2-3.pt
         print()
     
     board_size = 8
@@ -90,4 +90,4 @@ if __name__ == '__main__':
     
     print(f'\nHigh Score:     {max(endscores):>4}')
     print(f'Average score:  {sum(endscores) / len(endscores):>4.1f}')
-    print(f'\nScores: {endscores}')
+    print(f'Scores: {endscores}')

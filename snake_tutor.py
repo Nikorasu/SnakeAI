@@ -92,7 +92,7 @@ class GameRecorder:
         print(f"Highest score:      {self.highscore:>9}")
         print("\nSaving to file..")
 
-        datafile = f"snakedata_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt"
+        datafile = f"data_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt"
         t.save(self.bestgames_cache, datafile)
 
 if __name__ == '__main__':
