@@ -35,6 +35,7 @@ def train(datafile, num_epochs=300, batch_size=1000, learning_rate=0.001):
     model = SnakeNet().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
+    prevloss = 1
     lal.stop()
     print('Now training!..')
     la = LoadingAnim(0)
@@ -54,7 +55,9 @@ def train(datafile, num_epochs=300, batch_size=1000, learning_rate=0.001):
             running_loss += loss.item()
         
         la.stop()
-        print(f"\rEpoch {epoch}, Loss: {running_loss / len(data)}") # we should color/faint/darken based on whether loss goes up/down
+        darken = '\x1b[2m' if prevloss < running_loss / len(data) else ''
+        print(f"\rEpoch {epoch}, Loss: {darken}{running_loss / len(data)}\x1b[0m")
+        prevloss = running_loss / len(data)
         
         if epoch % (num_epochs//4) == 0: # 3 times during training, rotate the states "90 degrees"
             print('Rotating states... ', end='')
