@@ -6,7 +6,7 @@ from random import shuffle
 
 DataFile = 'data_t26946t_m.pt'
 Layers = [64, 512, 512, 256, 128, 64, 3]
-Epochs = 300
+Epochs = 250
 BatchSize = 1000
 LearnRate = 0.001
 ModelFile = 'model.pt'
@@ -41,7 +41,7 @@ def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
     print('Now training!..')
     la = LoadingAnim(0)
 
-    for epoch in range(1,num_epochs):
+    for epoch in range(1,num_epochs+1):
         la.start()
         running_loss = 0.0
         for i in range(0, len(data), batch_size):
@@ -59,13 +59,13 @@ def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
         print(f"\rEpoch {epoch}, Loss: {darken}{running_loss / len(data)}\x1b[0m")
         prevloss = running_loss / len(data)
         
-        if epoch % (num_epochs//4) == 0: # 3 times during training, rotate the states "90 degrees"
+        if epoch%(num_epochs//4) == 0 and epoch <= 3*(num_epochs//4): # 3 times during training, rotate the states "90 degrees"
             print('Rotating states... ', end='')
             lal.start()
-            data = [[t.rot90(state, -1, [0, 1]), action, reward] for state, action, reward in data]
+            data = [[t.rot90(state, 1, [0, 1]), action, reward] for state, action, reward in data]
             lal.stop()
             print("Done!")
-        if epoch % (num_epochs//2) == 0: # shuffles the data, reduced frequence cause it doesn't seem to matter much
+        if epoch%(num_epochs//2) == 0: # shuffles the data, reduced frequence cause it doesn't seem to matter much
             print('Shuffling data... ', end='')
             la.start()
             shuffle(data)
