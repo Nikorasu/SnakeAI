@@ -11,6 +11,7 @@ from time import sleep
 # The neural network outputs will correspond to the available actions (0, 1, 2) for left, forward, right.
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
+num_games = 20  # number of games for NN to play
 manual_input = False  # for debug testing
 
 def do(snake: t.Tensor, action: int):
@@ -55,7 +56,7 @@ if __name__ == '__main__':
         print()
     
     board_size = 8
-    count = 1 if manual_input else 10
+    count = 1 if manual_input else num_games
     endscores = []
     
     while count > 0:

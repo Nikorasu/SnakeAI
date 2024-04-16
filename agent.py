@@ -18,14 +18,16 @@ class SnakeNet(nn.Module):
     def __init__(self, layer_sizes):
         super(SnakeNet, self).__init__()
         self.layers = nn.ModuleList()
+        self.batch_norms = nn.ModuleList()
         for i in range(len(layer_sizes) - 1):
             self.layers.append(nn.Linear(layer_sizes[i], layer_sizes[i+1]))
+            self.batch_norms.append(nn.BatchNorm1d(layer_sizes[i+1]))
     def forward(self, x):
-        for i, layer in enumerate(self.layers):
-            if i < len(self.layers) - 1:
-                x = t.relu(layer(x))
-            else:
-                x = layer(x)  #t.softmax(layer(x), dim=1)
+        for i in range(len(self.layers)):
+            x = self.layers[i](x)
+            x = self.batch_norms[i](x)
+            if i < len(self.layers) - 1:  # else: x = t.softmax(x, dim=1)?
+                x = t.relu(x)
         return x
 
 def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
@@ -65,7 +67,7 @@ def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
             data = [[t.rot90(state, 1, [0, 1]), action, reward] for state, action, reward in data]
             lal.stop()
             print("Done!")
-        if epoch%(num_epochs//2) == 0: # shuffles the data, reduced frequence cause it doesn't seem to matter much
+        if epoch%(num_epochs//2) == 0 and epoch < num_epochs : # shuffles the data, reduced frequence cause it doesn't seem to matter much
             print('Shuffling data... ', end='')
             la.start()
             shuffle(data)
