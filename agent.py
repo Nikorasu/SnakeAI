@@ -6,10 +6,10 @@ from random import shuffle
 
 DataFile = 'data_t26946t_m.pt'
 Layers = [64, 512, 512, 256, 128, 64, 3]
-Epochs = 100
+Epochs = 300
 BatchSize = 1000
 LearnRate = 0.001
-ModelFile = 'model_smtest.pt'
+ModelFile = 'model.pt'
 
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")
@@ -25,7 +25,7 @@ class SnakeNet(nn.Module):
             if i < len(self.layers) - 1:
                 x = t.relu(layer(x))
             else:
-                x = t.softmax(layer(x), dim=1) #x = layer(x)
+                x = layer(x)  #t.softmax(layer(x), dim=1)
         return x
 
 def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
