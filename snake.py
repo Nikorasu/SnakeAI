@@ -51,7 +51,7 @@ def print_state(snake):
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
-        play = Play('model_sr27k_64-512x4-256x2-64x2-3.pt') # for neural network input  snakemodel_9946_64-512x4-256x2-3.pt snakemodel_300x17k_64-512x4-256x2-3.pt
+        play = Play() # for neural network input _sr27k_64-512x4-256x2-64x2-3 snakemodel_300x17k_64-512x4-256x2-3.pt _sr27k_64-512x4-256x2-128x2-64x1-3
         print()
     
     board_size = 8

@@ -4,35 +4,36 @@ import torch.optim as optim
 from loading_anim import LoadingAnim
 from random import shuffle
 
-# Check if CUDA is available
+DataFile = 'data_t26946t_m.pt'
+Layers = [64, 512, 512, 256, 128, 64, 3]
+Epochs = 100
+BatchSize = 1000
+LearnRate = 0.001
+ModelFile = 'model_smtest.pt'
+
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")
 
-# Define the neural network architecture
 class SnakeNet(nn.Module):
-    def __init__(self):
+    def __init__(self, layer_sizes):
         super(SnakeNet, self).__init__()
-        self.fc1 = nn.Linear(64, 512)
-        self.fc2 = nn.Linear(512, 512)
-        self.fc3 = nn.Linear(512, 256)
-        self.fc4 = nn.Linear(256, 64)
-        self.fc5 = nn.Linear(64, 3)
-
+        self.layers = nn.ModuleList()
+        for i in range(len(layer_sizes) - 1):
+            self.layers.append(nn.Linear(layer_sizes[i], layer_sizes[i+1]))
     def forward(self, x):
-        x = t.relu(self.fc1(x))
-        x = t.relu(self.fc2(x))
-        x = t.relu(self.fc3(x))
-        x = t.relu(self.fc4(x))
-        x = self.fc5(x)
+        for i, layer in enumerate(self.layers):
+            if i < len(self.layers) - 1:
+                x = t.relu(layer(x))
+            else:
+                x = t.softmax(layer(x), dim=1) #x = layer(x)
         return x
 
-# Function to train the neural network
-def train(datafile, num_epochs=300, batch_size=1000, learning_rate=0.001):
+def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
     print('Loading... ',end='')
     lal = LoadingAnim()
     lal.start()
     data = t.load(datafile)
-    model = SnakeNet().to(device)
+    model = SnakeNet(Layers).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
     prevloss = 1
@@ -53,7 +54,6 @@ def train(datafile, num_epochs=300, batch_size=1000, learning_rate=0.001):
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-        
         la.stop()
         darken = '\x1b[2m' if prevloss < running_loss / len(data) else ''
         print(f"\rEpoch {epoch}, Loss: {darken}{running_loss / len(data)}\x1b[0m")
@@ -64,29 +64,29 @@ def train(datafile, num_epochs=300, batch_size=1000, learning_rate=0.001):
             lal.start()
             data = [[t.rot90(state, -1, [0, 1]), action, reward] for state, action, reward in data]
             lal.stop()
-            print()
-        elif epoch % 10 == 0: # otherwise every 10 epochs, shuffle the data
+            print("Done!")
+        if epoch % (num_epochs//2) == 0: # shuffles the data, reduced frequence cause it doesn't seem to matter much
             print('Shuffling data... ', end='')
             la.start()
             shuffle(data)
             la.stop()
-            print()
+            print("Done!")
 
-    print("Training complete!")
-    t.save(model.state_dict(), "model_sr27k_64-512x4-256x2-64x2-3.pt")  #"snakemodel_7000_64-256x2-512x2-256x2-64x2-3.pth"
+    print('Training complete! Saving... ', end='')
+    la.start()
+    t.save(model.state_dict(), ModelFile) #sr27k_64-512x4-256x2-64x2-3 model_sr27k_64-512x4-256x2-128x2-64x1-3.pt
+    la.stop()
 
-# Function to load the model and play a turn
 class Play:
-    def __init__(self,filename):
+    def __init__(self, filename=ModelFile):
         print('Loading... ',end='')
         la = LoadingAnim(0)
         la.start()
-        self.model = SnakeNet().to(device)
+        self.model = SnakeNet(Layers).to(device)
         self.model.load_state_dict(t.load(filename))
         self.model.eval()
         la.stop()
         print('Game On!')
-
     def turn(self, state):
         state = state.clone().detach().view(1, -1).to(device, dtype=t.float32) #t.tensor(state, dtype=t.float32, device=device)
         output = self.model(state)
@@ -94,6 +94,5 @@ class Play:
         return action
 
 if __name__ == "__main__":
-    # Train the model
-    train('data_t26946t_m.pt') #'snakedata_t9946t_38.pt'
-    print("Model trained and saved!")
+    train(datafile=DataFile, num_epochs=Epochs, batch_size=BatchSize, learning_rate=LearnRate )
+    print(f'Model saved as {ModelFile}\nAll Finished!')
