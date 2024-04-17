@@ -13,3 +13,14 @@ I haven't had much luck getting reinforcement learning working yet, so I've been
 Using the _tutor version, I recorded thousands of games to file, along with the action each turn made.
 That sorta gives me enough data to train a basic neural network on what move to make for whatever
 the game state might currently look like.
+
+Example game state:
+
+${\large0~~~0~~~0~~~0~~~0~~~0~~~0~~~0}$\
+${\large0~~~0~~~0~~~0~~~{\color{green}1~~~2}~~~0~~~0}$\
+${\large0~~~0~~~0~~~0~~~0~~~{\color{green}3}~~~0~~~0}$\
+${\large0~~~0~~~0~~~0~~~0~~~{\color{green}4}~~~0~~~0}$\
+${\large0~~~0~~~0~~~{\color{green}7~~~6~~~5}~~~0~~~0}$\
+${\large0~~~0~~~0~~~{\color{green}8}~~~0~~~0~~~0~~~0}$\
+${\large0~~~0~\,{\color{red}-\!1}~~0~~~0~~~0~~~0~~~0}$\
+${\large0~~~0~~~0~~~0~~~0~~~0~~~0~~~0}$
