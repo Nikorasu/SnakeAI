@@ -6,7 +6,7 @@ from random import shuffle
 
 DataFile = 'data_t26946t_m.pt'
 Layers = [64, 512, 512, 256, 128, 64, 3]
-Epochs = 250
+Epochs = 300
 BatchSize = 1000
 LearnRate = 0.001
 ModelFile = 'model.pt'
