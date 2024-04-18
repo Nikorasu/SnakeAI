@@ -8,7 +8,7 @@ from time import sleep
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 10000    # number of high-scoring games to save (actual turn count may vary)
+num2save = 10000   # number of high-scoring games to save (actual turn count may vary)
 maxgames = 50000   # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
 threshold = 42     # threshold over which to save games, locked in this version
@@ -92,7 +92,7 @@ class GameRecorder:
         print("\nDone!")
         print(f"Games collected:    {self.games_collected:>9}")
         print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>9.1f}")
-        print(f"Total turns saved:  {len(self.bestgames_cache):>9,}")
+        print(f"Total turns saved:  {sum(self.turnspergame):>9,}")
         print(f"Average score:      {sum(self.scores) / len(self.scores):>9.3f}")
         print(f"Highest score:      {self.highscore:>9}")
         print("\nSaving to file..")
