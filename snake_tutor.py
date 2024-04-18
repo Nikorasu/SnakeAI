@@ -4,15 +4,14 @@ import torch as t
 from torch import tensor as T
 from time import sleep
 
-# This is a simplified version of the classic Snake game, reworked to play itself using depth-first search!
 # This version will be designed to collect data on high scoring games, in a format easy to feed into a neural network.
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 3054    # number of high-scoring games to save (actual turn count may vary)
+num2save = 10000    # number of high-scoring games to save (actual turn count may vary)
 maxgames = 50000   # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
-threshold = 45     # threshold over which to save games, locked in this version
+threshold = 42     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little
 trimend = True     # removes data after 2nd to last food eaten, as it usually leads to dead-ends
 game2file = True   # whether to save each game to it's own file, or to just append to memory list
