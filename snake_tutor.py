@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from loading_anim import LoadingAnim
 from snake import do, print_state
 import torch as t
 from torch import tensor as T
@@ -8,10 +9,10 @@ from time import sleep
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 10000   # number of high-scoring games to save (actual turn count may vary)
+num2save = 3054   # number of high-scoring games to save (actual turn count may vary)
 maxgames = 50000   # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
-threshold = 42     # threshold over which to save games, locked in this version
+threshold = 48     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little
 trimend = True     # removes data after 2nd to last food eaten, as it usually leads to dead-ends
 game2file = True   # whether to save each game to it's own file, or to just append to memory list
@@ -46,6 +47,7 @@ class GameRecorder:
         self.turnspergame = []
         self.scores = []
         self.highscore = 0
+        self.la = LoadingAnim()
 
     def single_bot_game(self):
         game_data = []
@@ -67,9 +69,6 @@ class GameRecorder:
                 game_data.append([state, best_action, reward]) # state, action, reward, next_state #, snake.clone() for next_state
                 #We don't really need to save the next state, since we can get it from the following index later.
         
-        print_state(snake)
-        print(f"{snake.max().item():<6}{self.highscore:^6}{1+maxgames-self.cycles:>9}")
-        
         if snake.max().item() >= threshold:
             self.games_collected += 1
             if game2file: t.save(game_data, f'bestgames/game_{self.games_collected}.pt')
@@ -78,24 +77,28 @@ class GameRecorder:
                 self.bestgames_cache.extend(game_data)
             self.scores.append(snake.max().item())
             self.turnspergame.append(turns)
-            print(f"Scored over {threshold}!  Saved: {self.games_collected}")
+            print_state(snake)
+            print(f"{snake.max().item():<4}{self.highscore:^4}{1+maxgames-self.cycles:>8}  Scored over {threshold}!  Saved: {self.games_collected}")
         
         return snake.max().item()
     
     def run(self):
         try:
+            if not slowmode: self.la.start()
             while self.games_collected < num2save and self.cycles > 0:
                 self.highscore = max(self.highscore, self.single_bot_game())
                 self.cycles -= 1
         except KeyboardInterrupt:
-            print("\nEnding early..")
+            print("\x1b[4CEnding early..")
+        if not slowmode: self.la.stop()
         print("\nDone!")
         print(f"Games collected:    {self.games_collected:>9}")
         print(f"Average Turns/game: {sum(self.turnspergame) / len(self.turnspergame):>9.1f}")
         print(f"Total turns saved:  {sum(self.turnspergame):>9,}")
         print(f"Average score:      {sum(self.scores) / len(self.scores):>9.3f}")
         print(f"Highest score:      {self.highscore:>9}")
-        print("\nSaving to file..")
+        print("\nSaving to file.. ", end='')
+        self.la.start()
         datafile = f"data_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt"
         if game2file:
             dataset = []
@@ -107,6 +110,8 @@ class GameRecorder:
             t.save(dataset, datafile)
         else:
             t.save(self.bestgames_cache, datafile)
+        self.la.stop()
+        print("Saved. Now quitting.")
 
 if __name__ == '__main__':
     tutor = GameRecorder()
