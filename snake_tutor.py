@@ -9,8 +9,8 @@ from time import sleep
 # Built using MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 slowmode = False   # slows things down so you can watch what's going on
-num2save = 3054   # number of high-scoring games to save (actual turn count may vary)
-maxgames = 50000   # maximum number of games to play before giving up
+num2save = 10000   # number of high-scoring games to save (actual turn count may vary)
+maxgames = 100000  # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
 threshold = 48     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little
