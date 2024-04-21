@@ -5,11 +5,11 @@ from loading_anim import LoadingAnim
 from random import shuffle
 
 DataFile = 'data_30k.pt'  #'data_t26946t_m.pt'
-Layers = [64, 512, 512, 256, 128, 64, 3]
-Epochs = 400
+Layers = [64, 512, 512, 512, 3]
+Epochs = 300
 BatchSize = 1000
 LearnRate = 0.001
-ModelFile = 'model.pt'
+ModelFile = 'model.pt' #'model420.pt' #[64, 512, 512, 256, 128, 64, 3]
 
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")

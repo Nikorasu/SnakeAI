@@ -12,7 +12,7 @@ from time import sleep
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 num_games = 20  # number of games for NN to play
-manual_input = False  # for debug testing
+manual_input = True  # for debug testing
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
@@ -25,11 +25,16 @@ def do(snake: t.Tensor, action: int):
     if (snake[tuple(pos_next)] > 0).any():
         return -10
     
-    if snake[tuple(pos_next)] == -1:
+    if snake[tuple(pos_next)] != -1: # this way fixes win-error
+        snake[snake > 0] -= 1
+    elif (snake == 0).any():  # snake[tuple(pos_next)] == -1
+        pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
+        snake[unravel(pos_food, snake.shape)] = -1
+    '''if snake[tuple(pos_next)] == -1:
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
         snake[unravel(pos_food, snake.shape)] = -1
     else:
-        snake[snake > 0] -= 1
+        snake[snake > 0] -= 1'''
 
     snake[tuple(pos_next)] = snake[tuple(pos_cur)] + 1
     
@@ -82,7 +87,7 @@ if __name__ == '__main__':
             elif reward >= 10:
                 timeout = 42
             print(f"{reward}  {'Got Food!' if reward>=10 else 'Game Over!' if reward==-10 else ''}")
-            sleep(0.2)
+            sleep(0.1)
 
         endscores.append(snake.max().item())
         print('Score:', endscores[-1])
