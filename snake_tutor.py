@@ -12,10 +12,11 @@ slowmode = False   # slows things down so you can watch what's going on
 num2save = 10000   # number of high-scoring games to save (actual turn count may vary)
 maxgames = 100000  # maximum number of games to play before giving up
 game_size = 8      # has to be same size as version NN plays
-threshold = 48     # threshold over which to save games, locked in this version
+threshold = 42     # threshold over which to save games, locked in this version
 trimstart = True   # removes the first few moves, to help randomize the start a little
 trimend = True     # removes data after 2nd to last food eaten, as it usually leads to dead-ends
 game2file = True   # whether to save each game to it's own file, or to just append to memory list
+folder = 'bestgames'
 
 def explore_path(snake, depth=0, max_depth=game_size**2//2): # hs 56 = 60/64
     futures = [snake.clone() for _ in range(3)]
@@ -42,7 +43,7 @@ class GameRecorder:
     def __init__(self):
         self.cycles = maxgames
         self.bestgames_cache = []
-        try: self.games_collected = int(open('bestgames/lastcount', 'r').read())
+        try: self.games_collected = int(open(f'{folder}/lastcount', 'r').read())
         except FileNotFoundError: self.games_collected = 0
         self.turnspergame = []
         self.scores = []
@@ -71,7 +72,7 @@ class GameRecorder:
         
         if snake.max().item() >= threshold:
             self.games_collected += 1
-            if game2file: t.save(game_data, f'bestgames/game_{self.games_collected}.pt')
+            if game2file: t.save(game_data, f'{folder}/game_{self.games_collected}.pt')
             else:
                 if trimend: game_data = trimdeath(game_data)
                 self.bestgames_cache.extend(game_data)
@@ -102,9 +103,9 @@ class GameRecorder:
         datafile = f"data_{'t' if trimstart else ''}{self.games_collected}{'t' if trimend else ''}_{sum(self.scores) // len(self.scores)}.pt"
         if game2file:
             dataset = []
-            open('bestgames/lastcount', 'w').write(str(self.games_collected))
+            open(f'{folder}/lastcount', 'w').write(str(self.games_collected))
             for i in range(1, self.games_collected + 1):
-                gamedata = t.load(f'bestgames/game_{i}.pt')
+                gamedata = t.load(f'{folder}/game_{i}.pt')
                 if trimend: gamedata = trimdeath(gamedata)
                 dataset.extend(gamedata)
             t.save(dataset, datafile)
