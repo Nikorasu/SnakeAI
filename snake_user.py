@@ -42,7 +42,7 @@ def single_game():
     
     if snake.max().item() >= game_size**2/2:
         save = input("Save game? (y/n): ")
-        if save == 'y':
+        if save != 'n':
             num_collected += 1
             t.save(game_data, f'{folder}/game_{num_collected}.pt')
             open(f'{folder}/last', 'w').write(str(num_collected))
