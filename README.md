@@ -4,7 +4,7 @@ This project is still being worked on, and it's mostly just to satisfy my curios
 Uses a modified version of [MiniSnakes](https://github.com/eliasffyksen/MiniSnakes) and just requires PyTorch and Numpy for now.\
 I've setup the base game with rewards, hopefully that can work with for reinforcement learning.\
 Also made an old-school bot version (`snake_smrtbot.py` & `snake_tutor.py`) to record data for training.\
-The bot version can usually fill over half the play area with snake, highest score I've seen so far was 60/64!\
+The bot version can usually fill over half the play area with snake, highest score I've seen so far was 62/64!\
 The current reward system gives 10 points for eating food, -10 for running into itself. As well as a small reward as it moves around, positive values when actions move it closer to food, negative when it's actions head away from food, scaling from 1 up to 9 (spot next to food) as it gets closer.
 
 - `snake.py` is the base game, with modifications for manual or agent to play.

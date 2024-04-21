@@ -30,7 +30,7 @@ def single_game():
         action = input("Enter action (0: left, 1: forward, 2: right): ")
         
         if action == 'b':
-            turns -= 1
+            turns -= 2
             snake, action, reward = game_data.pop()
         elif action in ['0','1','2','']:
             action = int(action) if action != '' else 1
