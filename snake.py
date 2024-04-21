@@ -12,7 +12,7 @@ from time import sleep
 # Based on MiniSnakes - https://github.com/eliasffyksen/MiniSnakes
 
 num_games = 20  # number of games for NN to play
-manual_input = True  # for debug testing
+manual_input = False  # for debug testing
 
 def do(snake: t.Tensor, action: int):
     prevsegs = snake.max().item()
@@ -30,11 +30,6 @@ def do(snake: t.Tensor, action: int):
     elif (snake == 0).any():  # snake[tuple(pos_next)] == -1
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
         snake[unravel(pos_food, snake.shape)] = -1
-    '''if snake[tuple(pos_next)] == -1:
-        pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
-        snake[unravel(pos_food, snake.shape)] = -1
-    else:
-        snake[snake > 0] -= 1'''
 
     snake[tuple(pos_next)] = snake[tuple(pos_cur)] + 1
     
@@ -57,7 +52,7 @@ def print_state(snake):
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
-        play = Play() # for neural network input _sr27k_64-512x4-256x2-64x2-3 snakemodel_300x17k_64-512x4-256x2-3.pt _sr27k_64-512x4-256x2-128x2-64x1-3
+        play = Play() # for neural network input
         print()
     
     board_size = 8

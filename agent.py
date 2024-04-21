@@ -76,7 +76,7 @@ def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
 
     print('Training complete! Saving... ', end='')
     la.start()
-    t.save(model.state_dict(), ModelFile) #sr27k_64-512x4-256x2-64x2-3 model_sr27k_64-512x4-256x2-128x2-64x1-3.pt
+    t.save(model.state_dict(), ModelFile)
     la.stop()
 
 class Play:
