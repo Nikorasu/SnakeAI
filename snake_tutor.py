@@ -75,7 +75,7 @@ class GameRecorder:
             if game2file: t.save(game_data, f'{folder}/game_{self.games_collected}.pt')
             else:
                 if trimend: game_data = trimdeath(game_data)
-                self.bestgames_cache.extend(game_data)
+                self.bestgames_cache += game_data #self.bestgames_cache.extend(game_data)
             self.scores.append(snake.max().item())
             self.turnspergame.append(turns)
             print_state(snake)
@@ -107,7 +107,7 @@ class GameRecorder:
             for i in range(1, self.games_collected + 1):
                 gamedata = t.load(f'{folder}/game_{i}.pt')
                 if trimend: gamedata = trimdeath(gamedata)
-                dataset.extend(gamedata)
+                dataset += gamedata #dataset.extend(gamedata)
             t.save(dataset, datafile)
         else:
             t.save(self.bestgames_cache, datafile)
