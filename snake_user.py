@@ -28,14 +28,14 @@ def single_game():
         state = snake.clone()
         action = input("Enter action (0: left, 1: forward, 2: right): ")
         if action == 'b':
-            turns -= 1
             snake, action, reward = game_data.pop()
+            turns -= 1
         elif action in ['0','1','2','']:
-            turns += 1
             action = int(action) if action != '' else 1
             reward = do(snake, action)
-            game_data.append([state, action, reward]) # state, action, reward
-        
+            if reward != -10:
+                game_data.append([state, action, reward])
+                turns += 1
         print_state(snake)
         print(f"{turns:<4}{reward:^5}{action:^5}{snake.max().item():^5}")
     
