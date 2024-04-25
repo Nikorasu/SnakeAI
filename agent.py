@@ -5,12 +5,12 @@ import torch.optim as optim
 from loading_anim import LoadingAnim
 from random import shuffle
 
-DataFile = 'data_30k.pt'  #'data_t26946t_m.pt'
-Layers = [64, 512, 512, 512, 3]
-Epochs = 300
+Data = ('24pgames.pt','data_30k.pt')  #'data_t26946t_m.pt'
+Layers = [64, 512, 512, 512, 128, 3]
+Epochs = 500
 BatchSize = 1000
 LearnRate = 0.001
-ModelFile = 'model.pt' #'model420.pt' #[64, 512, 512, 256, 128, 64, 3]
+ModelFile = 'model.pt' #'model_p30k.pt'#[64, 512, 512, 512, 3] #'model420.pt'#[64, 512, 512, 256, 128, 64, 3]
 
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")
@@ -31,11 +31,12 @@ class SnakeNet(nn.Module):
                 x = t.relu(x)
         return x
 
-def train(datafile, num_epochs=100, batch_size=1000, learning_rate=0.001):
+def train(dataset, num_epochs=100, batch_size=1000, learning_rate=0.001):
     print('Loading... ',end='')
     lal = LoadingAnim()
     lal.start()
-    data = t.load(datafile)
+    data = []  #data = t.load('10pgames.pt') #data += t.load(dataset)
+    for file in dataset: data += t.load(file)
     model = SnakeNet(Layers).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
@@ -97,5 +98,5 @@ class Play:
         return action
 
 if __name__ == "__main__":
-    train(datafile=DataFile, num_epochs=Epochs, batch_size=BatchSize, learning_rate=LearnRate )
+    train(dataset=Data, num_epochs=Epochs, batch_size=BatchSize, learning_rate=LearnRate )
     print(f'Model saved as {ModelFile}\nAll Finished!')
