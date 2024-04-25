@@ -46,5 +46,14 @@ def single_game():
             t.save(game_data, f'{folder}/game_{num_collected}.pt')
             open(f'{folder}/last', 'w').write(str(num_collected))
 
+def group_files():
+    num = int(open(f'{folder}/last', 'r').read())
+    dataset = []
+    for i in range(1, num + 1):
+        gamedata = t.load(f'{folder}/game_{i}.pt')
+        dataset += gamedata
+    t.save(dataset, f'{num}pgames.pt')
+
 if __name__ == '__main__':
     single_game()
+    #group_files()
