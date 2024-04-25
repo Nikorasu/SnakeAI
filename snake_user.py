@@ -37,7 +37,7 @@ def single_game():
                 game_data.append([state, action, reward])
                 turns += 1
         print_state(snake)
-        print(f"{turns:<4}{reward:^5}{action:^5}{snake.max().item():^5}")
+        print(turns, '\b\x1b[31m' if reward == -10 else '\b\x1b[32m' if reward > 9 else '\b', reward, action, sep='\t', end='\x1b[0m\n')
     
     if snake.max().item() >= game_size**2/2:
         save = input("Save game? (y/n): ")
