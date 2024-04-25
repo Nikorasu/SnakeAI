@@ -10,7 +10,7 @@ from torch import tensor as T
 # Enter 'q' to quit prematurely. (hitting Enter with no input counts as 1)
 game_size = 8      # has to be same size as version NN plays
 folder = 'mygames'
-ham = [1,1,1,1,2,2,1,1,1,1,1,1,0,0,1,1] # for Hamiltonian
+ham = 0 #[1,1,1,2,0,1,1,1] #[1,1,1,1,2,2,1,1,1,1,1,1,0,0,1,1] #for Hamiltonian
 
 def single_game():
     try: num_collected = int(open(f'{folder}/last', 'r').read())
@@ -31,7 +31,7 @@ def single_game():
             snake, action, reward = game_data.pop()
             turns -= 1
         elif action in ['0','1','2','']:
-            action = int(action) if action != '' else 1#ham[turns%len(ham)] #1
+            action = int(action) if action != '' else ham[turns%len(ham)] if ham else 1
             reward = do(snake, action)
             if reward != -10:
                 game_data.append([state, action, reward])
