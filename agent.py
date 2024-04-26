@@ -5,7 +5,7 @@ import torch.optim as optim
 from loading_anim import LoadingAnim
 from random import shuffle
 
-Data = ('24pgames.pt','data_30k.pt')  #'data_t26946t_m.pt'
+Data = ('30pgames.pt', 'data_30k.pt')  #'data_t26946t_m.pt'
 Layers = [64, 512, 512, 512, 128, 3]
 Epochs = 500
 BatchSize = 1000
