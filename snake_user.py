@@ -5,12 +5,17 @@ from torch import tensor as T
 
 # This version allows recording a manually played game of Snake step-by-step,
 # in order to record a few perfect games with better moves than the bot can.
-# Also allows for "backspacing" moves when needed by entering 'b', otherwise
+# Allows for "backspacing" moves when needed by entering 'b' or 5, otherwise
 # the player enters the action number (0: left, 1: forward, 2: right).
 # Enter 'q' to quit prematurely. (hitting Enter with no input counts as 1)
+
 game_size = 8      # has to be same size as version NN plays
 folder = 'mygames'
-ham = 0 #[1,1,1,2,0,1,1,1] #[1,1,1,1,2,2,1,1,1,1,1,1,0,0,1,1] #for Hamiltonian
+ham = 0  # no hamiltonian, goes straight on blank input
+#ham = [1,1,1,2,0,1,1,1]  #for Hamiltonian
+#ham = [1,1,1,1,2,2,1,1,1,1,1,1,0,0,1,1]  #for zigzag
+#ham =  [1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,1,1,2, #spiral
+#        1,1,2,2,1,0,0,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,2,2,1,1]
 
 def single_game():
     try: num_collected = int(open(f'{folder}/last', 'r').read())
