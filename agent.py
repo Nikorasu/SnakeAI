@@ -5,12 +5,12 @@ import torch.optim as optim
 from loading_anim import LoadingAnim
 from random import shuffle
 
-Data = ('30pgames.pt', 'data_30k.pt')  #'data_t26946t_m.pt'
-Layers = [64, 512, 512, 512, 128, 3]
+Data = ('30pgames.pt', 'data_30k.pt')
+Layers = [64, 512, 512, 512, 3]
 Epochs = 500
 BatchSize = 1000
 LearnRate = 0.001
-ModelFile = 'model.pt' #'model_p30k.pt'#[64, 512, 512, 512, 3] #'model420.pt'#[64, 512, 512, 256, 128, 64, 3]
+ModelFile = 'model.pt'
 
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")
@@ -35,7 +35,7 @@ def train(dataset, num_epochs=100, batch_size=1000, learning_rate=0.001):
     print('Loading... ',end='')
     lal = LoadingAnim()
     lal.start()
-    data = []  #data = t.load('10pgames.pt') #data += t.load(dataset)
+    data = []
     for file in dataset: data += t.load(file)
     model = SnakeNet(Layers).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
