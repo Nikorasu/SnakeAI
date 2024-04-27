@@ -46,7 +46,7 @@ def single_game():
         print(turns, '\b\x1b[31m' if reward == -10 else '\b\x1b[32m' if reward > 9 else '\b', reward, action, sep='\t', end='\x1b[0m\n')
     
     if snake.max().item() >= game_size**2/2:
-        save = input("Save game? (y/n): ")
+        save = input(f"Save game {num_collected+1}? (y/n): ")
         if save != 'n':
             num_collected += 1
             t.save(game_data, f'{folder}/game_{num_collected}.pt')
