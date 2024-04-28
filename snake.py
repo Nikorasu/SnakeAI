@@ -46,7 +46,6 @@ def print_state(snake):
         row_str = ''.join([f"{c['green'] if snake.max().item()>value>1 else c[value]}{value:2}{c['reset']}" for value in row.tolist()])
         print(row_str, end='\x1b[0m\n')
 
-# The neural network agent will have to initialize this stuff too, and handle the loop.
 if __name__ == '__main__':
     if not manual_input:
         from agent import Play
@@ -69,8 +68,8 @@ if __name__ == '__main__':
                 action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
             else:
                 action = play.turn(snake) # for neural network input
-            print()
-            reward = do(snake, int(action) if action != '' else 1)
+            print(action)
+            reward = do(snake, int(action) if action in ['0','1','2'] else 1) # != ''
             print_state(snake)
             timeout -= 1
             if timeout == 0:
