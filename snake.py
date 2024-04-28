@@ -22,15 +22,13 @@ def do(snake: t.Tensor, action: int):
     rotation = T([[0, -1], [1, 0]]).matrix_power(3 + action)
     pos_next = (pos_cur + (pos_cur - pos_prev) @ rotation) % T(snake.shape)
     
-    if (snake[tuple(pos_next)] > 0).any():
+    if (snake[tuple(pos_next)] > 1).any(): # > 1 allows moving where 1 was
         return -10
-    
     if snake[tuple(pos_next)] != -1: # this way fixes win-error
         snake[snake > 0] -= 1
     elif (snake == 0).any():  # snake[tuple(pos_next)] == -1
         pos_food = (snake == 0).flatten().to(t.float).multinomial(1)[0]
         snake[unravel(pos_food, snake.shape)] = -1
-
     snake[tuple(pos_next)] = snake[tuple(pos_cur)] + 1
     
     segs = snake.max().item()
@@ -43,9 +41,9 @@ def getdists(snake):
     return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item()
 
 def print_state(snake):
-    c = {'green':'\x1b[32m', -1:'\x1b[31m', 0:'\x1b[37;2m', snake.max().item():'\x1b[32;1m', 'reset':'\x1b[0m'}
+    c = {'green':'\x1b[32m', 1:'\x1b[32;2m', -1:'\x1b[31m', 0:'\x1b[37;2m', snake.max().item():'\x1b[32;1m', 'reset':'\x1b[0m'}
     for row in snake:
-        row_str = ''.join([f"{c['green'] if snake.max().item()>value>0 else c[value]}{value:2}{c['reset']}" for value in row.tolist()])
+        row_str = ''.join([f"{c['green'] if snake.max().item()>value>1 else c[value]}{value:2}{c['reset']}" for value in row.tolist()])
         print(row_str, end='\x1b[0m\n')
 
 # The neural network agent will have to initialize this stuff too, and handle the loop.
@@ -54,7 +52,6 @@ if __name__ == '__main__':
         from agent import Play
         play = Play() # for neural network input
         print()
-    
     board_size = 8
     count = 1 if manual_input else num_games
     endscores = []
@@ -67,7 +64,6 @@ if __name__ == '__main__':
         print()
         print_state(snake)
         print()
-
         while reward != -10:
             if manual_input:
                 action = input("Enter action (0: left, 1: forward, 2: right): ") # for manual human input
@@ -83,7 +79,6 @@ if __name__ == '__main__':
                 timeout = 42
             print(f"{reward}  {'Got Food!' if reward>=10 else 'Game Over!' if reward==-10 else ''}")
             sleep(0.1)
-
         endscores.append(snake.max().item())
         print('Score:', endscores[-1])
         sleep(1)
