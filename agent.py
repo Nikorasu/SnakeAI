@@ -5,12 +5,12 @@ import torch.optim as optim
 from loading_anim import LoadingAnim
 from random import shuffle
 
-Data = ['30pgames.pt', 'data_21k_42.pt']
+Data = ['50pgames.pt', 'data_21k_42.pt']
 Layers = [64, 512, 512, 512, 128, 3]
 Epochs = 500
 BatchSize = 1000
 LearnRate = 0.005
-ModelFile = 'model_ns.pt'
+ModelFile = 'model.pt'
 
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")

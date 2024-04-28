@@ -11,7 +11,7 @@ from torch import tensor as T
 
 game_size = 8      # has to be same size as version NN plays
 folder = 'mygames'
-ham = 0  # no hamiltonian, goes straight on blank input
+ham = False  # no hamiltonian, goes straight on blank input
 #ham = [1,1,1,2,0,1,1,1]  #for Hamiltonian
 #ham = [1,1,1,1,2,2,1,1,1,1,1,1,0,0,1,1]  #for zigzag
 #ham = [1,1,1,1,2,1,1,2,1,2,2,0,0,1,0,1,1,1,1,1,0,1,1,0,1,0,0,2,2,1,2,1] #4quad
