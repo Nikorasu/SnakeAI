@@ -10,6 +10,7 @@ The current reward system gives 10 points for eating food, -10 for running into 
 - `snake.py` is the base game, with modifications for manual or agent to play.
 - `agent.py` contains the code for the neural network to train, save, and playback.
 - `snake_tutor.py` collects data from tons of best-games played by a simpler bot.
+- `snake_user.py` enables manually recording perfect games, including a backspace feature.
 
 I haven't had much luck getting reinforcement learning working yet, so I've been trying simpler methods.\
 Using the _tutor version, I recorded thousands of games to file, along with the action each turn made.\
