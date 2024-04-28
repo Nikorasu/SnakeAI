@@ -69,7 +69,7 @@ if __name__ == '__main__':
             else:
                 action = play.turn(snake) # for neural network input
             print(action)
-            reward = do(snake, int(action) if action in ['0','1','2'] else 1) # != ''
+            reward = do(snake, int(action) if int(action) in [0,1,2] else 1) # != ''
             print_state(snake)
             timeout -= 1
             if timeout == 0:
