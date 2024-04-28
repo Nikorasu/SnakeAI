@@ -5,12 +5,12 @@ import torch.optim as optim
 from loading_anim import LoadingAnim
 from random import shuffle
 
-Data = ['31pgames.pt', 'data_21k_42.pt']
-Layers = [64, 512, 512, 512, 3]
-Epochs = 200
+Data = ['30pgames.pt', 'data_21k_42.pt']
+Layers = [64, 512, 512, 512, 128, 3]
+Epochs = 500
 BatchSize = 1000
 LearnRate = 0.005
-ModelFile = 'model.pt'
+ModelFile = 'model_ns.pt'
 
 device = t.device("cuda" if t.cuda.is_available() else "cpu")
 print(f"Using {device} ")
@@ -28,7 +28,7 @@ class SnakeNet(nn.Module):
             x = self.layers[i](x)
             x = self.batch_norms[i](x)
             if i < len(self.layers) - 1: x = nn.ReLU()(x) #t.relu(x)
-            else: x = nn.Softmax(dim=1)(x)
+            #else: x = nn.Softmax(dim=1)(x) # snake performs worse with softmax for some reason
         return x
 
 def train(dataset, num_epochs=100, batch_size=1000, learning_rate=0.001):
