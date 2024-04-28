@@ -43,9 +43,9 @@ def getdists(snake):
     return t.dist(t.tensor(head, dtype=t.float), t.tensor(food, dtype=t.float)).item()
 
 def print_state(snake):
-    c = {'red': '\x1b[31m', 'green': '\x1b[32m', 'white': '\x1b[37m'}
+    c = {'green':'\x1b[32m', -1:'\x1b[31m', 0:'\x1b[37;2m', snake.max().item():'\x1b[32;1m', 'reset':'\x1b[0m'}
     for row in snake:
-        row_str = ''.join([f"{c['green'] if value>0 else c['red'] if value==-1 else c['white']}{value:2}" for value in row.tolist()])
+        row_str = ''.join([f"{c['green'] if snake.max().item()>value>0 else c[value]}{value:2}{c['reset']}" for value in row.tolist()])
         print(row_str, end='\x1b[0m\n')
 
 # The neural network agent will have to initialize this stuff too, and handle the loop.
