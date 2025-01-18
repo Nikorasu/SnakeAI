@@ -1,6 +1,6 @@
 # Using ML to play Snake
 
-This project is still being worked on, and it's mostly just to satisfy my curiosity.\
+This project is still being worked on, and it's mostly just to satisfy my curiosity. I don't know what I'm doing.\
 Uses a modified version of [MiniSnakes](https://github.com/eliasffyksen/MiniSnakes) and just requires PyTorch and Numpy for now.\
 I've setup the base game with rewards, hopefully that can work with for reinforcement learning.\
 Also made an old-school bot version (`snake_smrtbot.py` & `snake_tutor.py`) to record data for training.\
